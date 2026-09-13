@@ -1,157 +1,157 @@
 ---
 lab:
-    title: 'Develop a Voice Live agent'
-    description: 'Use Azure Speech Voice Live in Microsoft Foundry Tools to create a conversational agent.'
+    title: 'Desenvolver um agente Voice Live'
+    description: 'Use Azure Speech Voice Live no Microsoft Foundry Tools para criar um agente conversacional.'
     level: 300
     duration: 30
     islab: true
     status: 'released'
 ---
 
-# Develop a Voice Live agent
+# Desenvolver um agente Voice Live
 
-Speech-capable AI agents enable users to interact conversationally - using spoken command and questions that generate vocal responses.
+Agentes de IA com recursos de fala permitem que os usuários interajam de forma conversacional — usando comandos e perguntas faladas que geram respostas por voz.
 
-In this exercise, you'll the Voice Live capability of Azure Speech in Microsoft Foundry Tools to create a real-time voice-based agent.
+Neste exercício, você usará o recurso Voice Live do Azure Speech no Microsoft Foundry Tools para criar um agente de voz em tempo real.
 
-This exercise takes approximately **30** minutes.
+Este exercício leva aproximadamente **30** minutos.
 
-> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+> **Observação**: Algumas das tecnologias usadas neste exercício estão em versão prévia ou em desenvolvimento ativo. Você pode experimentar comportamentos inesperados, avisos ou erros.
 
-## Prerequisites
+## Pré-requisitos
 
-Before starting this exercise, ensure you have:
+Antes de começar este exercício, verifique se você tem:
 
-- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
-- [Visual Studio Code](https://code.visualstudio.com/) installed
-- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
-- [Git](https://git-scm.com/install/) installed and configured
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+- Uma [assinatura do Azure](https://azure.microsoft.com/pricing/purchase-options/azure-account) ativa
+- [Visual Studio Code](https://code.visualstudio.com/) instalado
+- [Python versão **3.13.xx**](https://www.python.org/downloads/release/python-31312/) instalado\*
+- [Git](https://git-scm.com/install/) instalado e configurado
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) instalada
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* O Python 3.14 está disponível, mas algumas dependências ainda não foram compiladas para essa versão. O laboratório foi testado com êxito com o Python 3.13.12.
 
-## Create a Microsoft Foundry project
+## Criar um projeto do Microsoft Foundry
 
-Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
+Microsoft Foundry usa projetos para organizar modelos, recursos, dados e outros ativos usados para desenvolver uma solução de IA.
 
-1. In a web browser, open [Microsoft Foundry](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. Em um navegador da Web, abra o [Microsoft Foundry](https://ai.azure.com) em `https://ai.azure.com` e entre usando suas credenciais do Azure. Feche quaisquer dicas ou painéis de início rápido que sejam abertos na primeira vez que você entrar e, se necessário, use o logotipo do Foundry no canto superior esquerdo para navegar até a página inicial.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the  **Advanced options** area to specify the following settings for your project:
-    - **Foundry resource**: *Enter a valid name for your AI Foundry resource.*
-    - **Subscription**: *Your Azure subscription*
-    - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any available region
+1. Se ainda não estiver habilitado, na barra de ferramentas na parte superior da página, habilite a opção **New Foundry**. Em seguida, se for solicitado, crie um novo projeto com um nome exclusivo; expandindo a área **Advanced options** para especificar as seguintes configurações para o seu projeto:
+    - **Foundry resource**: *Insira um nome válido para o seu recurso AI Foundry.*
+    - **Subscription**: *Sua assinatura do Azure*
+    - **Resource group**: *Crie ou selecione um grupo de recursos*
+    - **Region**: Selecione qualquer região disponível
 
-    > **Note**: Use a recommended Microsoft Foundry region. Model and feature availability may vary by region.
+    > **Observação**: Use uma região recomendada do Microsoft Foundry. A disponibilidade de modelos e recursos pode variar por região.
 
-1. Select **Create**. Wait for your project to be created. Then view its home page.
+1. Selecione **Create**. Aguarde a criação do seu projeto. Em seguida, exiba a página inicial dele.
 
-## Create an agent
+## Criar um agente
 
-Now let's create an agent.
+Agora vamos criar um agente.
 
-1. Now you're ready to **Start building**. Select **Create agents** (or on the **Build** page, select the **Agents** tab); and create a new agent named `chat-agent`.
+1. Agora você está pronto para **Start building**. Selecione **Create agents** (ou, na página **Build**, selecione a guia **Agents**) e crie um novo agente chamado `chat-agent`.
 
-     When ready, your agent opens in the agent playground.
+     Quando estiver pronto, seu agente será aberto no playground do agente.
 
-1. In the model drop-down list, ensure that a **gpt-5** model has been deployed and selected for your agent.
-1. Assign your agent the following **Instructions**:
+1. Na lista suspensa de modelos, verifique se um modelo **gpt-5** foi implantado e selecionado para o seu agente.
+1. Atribua ao seu agente as seguintes **Instructions**:
 
     ```
    You are an AI assistant that helps people find information about AI and related topics. You answer questions concisely and precisely.
     ```
 
-1. Use the **Save** button to save the changes.
-1. Test the agent by entering the following prompt in the **Chat** pane:
+1. Use o botão **Save** para salvar as alterações.
+1. Teste o agente inserindo o seguinte prompt no painel **Chat**:
 
     ```
    What can you help me with?
     ```
 
-    The agent should respond with an appropriate answer based on its instructions.
+    O agente deve responder com uma resposta apropriada com base nas instruções.
 
-## Configure Azure Speech Voice Live
+## Configurar Azure Speech Voice Live
 
-Enabling speech mode for a Foundry agent integrates Azure Speech Voice Live - adding speech capabilities to the agent.
+Habilitar o modo de fala para um agente do Foundry integra Azure Speech Voice Live — adicionando recursos de fala ao agente.
 
-1. In the pane on the left, under the model selection list, enable **Voice mode**.
+1. No painel à esquerda, abaixo da lista de seleção do modelo, habilite **Voice mode**.
 
-    If the **Configuration** pane does not open automatically, use the "cog" icon above the chat interface to open it.
+    Se o painel **Configuration** não abrir automaticamente, use o ícone de engrenagem acima da interface de chat para abri-lo.
 
-1. In the **Configuration** pane, under **Voice Live**, review the default speech input and output configuration. You can try different voices, previewing them until you decide which one to use.
-1. Close the **Configuration** pane and use the **Save** button to save the agent.
+1. No painel **Configuration**, em **Voice Live**, revise a configuração padrão de entrada e saída de fala. Você pode experimentar vozes diferentes, pré-visualizando-as até decidir qual usar.
+1. Feche o painel **Configuration** e use o botão **Save** para salvar o agente.
 
-## Use speech to interact with the agent
+## Usar fala para interagir com o agente
 
-Now you're ready to chat with the agent.
+Agora você está pronto para conversar com o agente.
 
-1. In the Chat pane, use the **Start session** button to start a conversation with the agent. If prompted, allow access to the system microphone.
+1. No painel Chat, use o botão **Start session** para iniciar uma conversa com o agente. Se solicitado, permita o acesso ao microfone do sistema.
 
-    The agent will start a speech session, and listen for your prompt.
+    O agente iniciará uma sessão de fala e ouvirá o seu prompt.
 
-1. When the app status is **Listening…**, say something like "*How does speech recognition work?*" and wait for a response.
+1. Quando o status do aplicativo for **Listening…**, diga algo como "*Como funciona o reconhecimento de fala?*" e aguarde uma resposta.
 
-1. Verify that the app status changes to **Processing…**. The app will process the spoken input.
+1. Verifique se o status do aplicativo muda para **Processing…**. O aplicativo processará a entrada falada.
 
-    >**Tip**: The processing speed may be so fast that you do not actually see the status before it changes back to *Speaking*.
+    >**Dica**: A velocidade de processamento pode ser tão rápida que você pode não ver o status antes de ele voltar a *Speaking*.
 
-1. When the status changes to **Speaking…**, the app uses text-to-speech to vocalize the response from the model. To see the original prompt and the response as text, select the **cc** button on the bottom of the chat screen.
+1. Quando o status mudar para **Speaking…**, o aplicativo usará conversão de texto em fala para vocalizar a resposta do modelo. Para ver o prompt original e a resposta como texto, selecione o botão **cc** na parte inferior da tela de chat.
 
-    >**Tip**: The follow-on prompt is submitted just by speaking. You can even interrupt the agent to keep the interaction focused on what you need done. You can also use the **Stop generation** button in the chat pane to stop long-running responses. The button will end the conversation. You will need to start a new conversation to continue using the agent.
+    >**Dica**: O prompt de acompanhamento é enviado apenas falando. Você pode até interromper o agente para manter a interação focada no que você precisa fazer. Você também pode usar o botão **Stop generation** no painel de chat para interromper respostas de longa duração. O botão encerrará a conversa. Você precisará iniciar uma nova conversa para continuar usando o agente.
 
-1. To continue the conversation, just ask another question, such as "*How does speech synthesis work?*", and review the response.
-1. When you have finished chatting with the agent, use the **X** icon to end the session. A transcript of the conversation will be displayed.
+1. Para continuar a conversa, basta fazer outra pergunta, como "*Como funciona a síntese de fala?*", e revisar a resposta.
+1. Quando terminar de conversar com o agente, use o ícone **X** para encerrar a sessão. Uma transcrição da conversa será exibida.
 
-## Create a client application
+## Criar um aplicativo cliente
 
-To use your agent in a custom application, you need to write code that uses the Azure Speech Voice Live SDK to initiate and manage a conversation session.
+Para usar seu agente em um aplicativo personalizado, você precisa escrever código que use o Azure Speech Voice Live SDK para iniciar e gerenciar uma sessão de conversa.
 
-### Get the application files from GitHub
+### Obter os arquivos do aplicativo no GitHub
 
-1. Open Visual Studio Code.
-1. Open the command palette (*Ctrl+Shift+P*) and use the `Git:clone` command to clone the `https://github.com/microsoftlearning/mslearn-ai-language` repo to a local folder (it doesn't matter which one). Then open it.
+1. Abra o Visual Studio Code.
+1. Abra a paleta de comandos (*Ctrl+Shift+P*) e use o comando `Git:clone` para clonar o repositório `https://github.com/microsoftlearning/mslearn-ai-language` para uma pasta local (não importa qual). Em seguida, abra-o.
 
-    You may be prompted to confirm you trust the authors.
+    Pode ser solicitado que você confirme se confia nos autores.
 
-1. After the repo has been cloned, in the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/06-voice-live/Python/chat-client**. The application files include:
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **chat-client.py** (the code file for the application)
+1. Depois que o repositório for clonado, no painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/06-voice-live/Python/chat-client**. Os arquivos do aplicativo incluem:
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **chat-client.py** (o arquivo de código do aplicativo)
 
-### Configure the application
+### Configurar o aplicativo
 
-1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.13.xx installation.
+1. No Visual Studio Code, veja o painel **Extensions**; e, se ainda não estiver instalada, instale a extensão **Python**.
+1. Na **Command Palette**, use o comando `python:select interpreter`. Em seguida, selecione um ambiente existente se você tiver um ou crie um novo ambiente **Venv** com base na sua instalação do Python 3.13.xx.
 
-    > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */Labfiles/06-voice-live/Python/chat-client* folder; but it's OK if you - don't we'll install them later!
+    > **Dica**: Se for solicitado que você instale dependências, você pode instalar as que estão no arquivo *requirements.txt* na pasta */Labfiles/06-voice-live/Python/chat-client*; mas tudo bem se você não fizer isso — vamos instalá-las depois!
 
-    > **Tip**: If you prefer to use the terminal, you can create your **Venv** environment with `python -m venv labenv`, then activate it with `\labenv\Scripts\activate`.
+    > **Dica**: Se preferir usar o terminal, você pode criar seu ambiente **Venv** com `python -m venv labenv` e, depois, ativá-lo com `\labenv\Scripts\activate`.
 
-1. In the **Explorer** pane, right-click the **chat-client** folder containing the application files, and select **Open in integrated terminal** (or open a terminal in the **Terminal** menu and navigate to the */Labfiles/06-voice-live/Python/chat-client* folder.)
+1. No painel **Explorer**, clique com o botão direito na pasta **chat-client** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou abra um terminal no menu **Terminal** e navegue até a pasta */Labfiles/06-voice-live/Python/chat-client*.)
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Talvez seja necessário habilitar a execução de scripts no seu sistema.
 
-1. Ensure that the terminal is open in the **chat-client** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the Foundry SDK package, the Azure Identity package, and other required packages by running the following command:
+1. Verifique se o terminal está aberto na pasta **chat-client** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Instale o pacote do Foundry SDK, o pacote Azure Identity e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt azure-identity azure-ai-voicelive==1.2.0b4 --pre azure-ai-projects==2.0.0b4
     ```
 
-1. In the **Explorer** pane, in the **chat-client** folder, select the **.env** file to open it. Then update the configuration values to include your Foundry resource **endpoint** (get the project endpoint from the project home page in Foundry Portal, but use only the base URL up to the *.com* domain), your project name, and the name of your agent (which should be **Chat-Agent** - note that this name is case-sensitive).
+1. No painel **Explorer**, na pasta **chat-client**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para incluir o **endpoint** do seu recurso Foundry (obtenha o endpoint do projeto na página inicial do projeto no Foundry Portal, mas use apenas a URL base até o domínio *.com*), o nome do seu projeto e o nome do seu agente (que deve ser **Chat-Agent** — observe que esse nome diferencia maiúsculas de minúsculas).
 
-> **Important**: Modify the pasted endpoint to remove the "/api/projects/{project_name}" suffix - the endpoint should be *https://{your-foundry-resource-name}.services.ai.azure.com*.
+> **Importante**: Modifique o endpoint colado para remover o sufixo "/api/projects/{project_name}" — o endpoint deve ser *https://{your-foundry-resource-name}.services.ai.azure.com*.
 
-1. Save the modified configuration file.
+1. Salve o arquivo de configuração modificado.
 
-### Implement application code
+### Implementar o código do aplicativo
 
-1. In the **Explorer** pane, in the **chat-client** folder,  open the **chat-client.py** file.
-1. Review the existing code. Most of the application scaffolding has been provided - you must implement the key steps required to use the Voice Live SDK to manage a conversation with your agent.
+1. No painel **Explorer**, na pasta **chat-client**, abra o arquivo **chat-client.py**.
+1. Revise o código existente. A maior parte da estrutura do aplicativo foi fornecida — você deve implementar as etapas principais necessárias para usar o Voice Live SDK a fim de gerenciar uma conversa com seu agente.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespaces you will need:
+1. Na parte superior do arquivo de código, abaixo das referências de namespace existentes, localize o comentário **Import namespaces** e adicione o seguinte código para importar os namespaces de que você precisará:
 
     ```python
    # import namespaces
@@ -170,17 +170,17 @@ To use your agent in a custom application, you need to write code that uses the 
    ) 
     ```
 
-1. In the **main** function, note that code to load the endpoint from the configuration file has already been provided, as has code to get an authentication credential and to create and run a **VoiceAssistant** object.
+1. Na função **main**, observe que já foi fornecido o código para carregar o endpoint do arquivo de configuração, bem como o código para obter uma credencial de autenticação e para criar e executar um objeto **VoiceAssistant**.
 
-    The **VoiceAssistant** class encapsulates the logic to manage the Voice Live conversation.
+    A classe **VoiceAssistant** encapsula a lógica para gerenciar a conversa do Voice Live.
 
-1. Under the **main** function, find the **VoiceAssistant** class definition.
+1. Abaixo da função **main**, localize a definição da classe **VoiceAssistant**.
 
-    The ****init**** function to initialize an object based on the class has already been implemented.
+    A função ****init**** para inicializar um objeto baseado na classe já foi implementada.
 
-    You must implement the **start** function, which is the core function to establish the conversation session.
+    Você deve implementar a função **start**, que é a função principal para estabelecer a sessão de conversa.
 
-1. Find the comment **STEP 1: Connect Azure VoiceLive to the agent**, and add the following code (being careful to indent it one level in under the **try:** statement):
+1. Localize o comentário **STEP 1: Connect Azure VoiceLive to the agent** e adicione o seguinte código (tendo cuidado para indentá-lo um nível dentro da instrução **try:**):
 
     ```python
    # STEP 1: Connect Azure VoiceLive to the agent
@@ -193,27 +193,27 @@ To use your agent in a custom application, you need to write code that uses the 
         self.connection = connection
     ```
 
-    This step creates a connection to your agent so the Voice Live SDK can establish a conversation with it.
+    Esta etapa cria uma conexão com o seu agente para que o Voice Live SDK possa estabelecer uma conversa com ele.
 
-1. Find the comment **STEP 2: Initialize audio processor**, and add the following code (being careful to indent it *another level in* under the step 1 code you just added):
+1. Localize o comentário **STEP 2: Initialize audio processor** e adicione o seguinte código (tendo cuidado para indentá-lo *mais um nível* dentro do código da etapa 1 que você acabou de adicionar):
 
     ```python
    # STEP 2: Initialize audio processor
    self.audio_processor = AudioProcessor(connection)
     ```
 
-    This code attaches an AudioProcessor object based on the class definition further down in the code file. The AudioProcessor is a utlility class to manage audio hardware I/O.
+    Esse código anexa um objeto AudioProcessor com base na definição de classe mais abaixo no arquivo de código. AudioProcessor é uma classe utilitária para gerenciar E/S de hardware de áudio.
 
-1. Find the comment **STEP 3: Configure the session**, and add the following code (being careful to maintain the same indentation as the step 2 code above):
+1. Localize o comentário **STEP 3: Configure the session** e adicione o seguinte código (tendo cuidado para manter a mesma indentação do código da etapa 2 acima):
 
     ```python
    # STEP 3: Configure the session
    await self.setup_session()
     ```
 
-    This code configures the session with the appropriate audio formats, conversational turn-detection semantics, and options to handle echos and background noise.
+    Esse código configura a sessão com os formatos de áudio apropriados, semântica de detecção de alternância de fala e opções para lidar com ecos e ruído de fundo.
 
-1. Find the comment **STEP 4: Start audio systems**, and add the following code (being careful to maintain the same indentation as the step 3 code above):
+1. Localize o comentário **STEP 4: Start audio systems** e adicione o seguinte código (tendo cuidado para manter a mesma indentação do código da etapa 3 acima):
 
     ```python
    # STEP 4: Start audio systems
@@ -223,20 +223,20 @@ To use your agent in a custom application, you need to write code that uses the 
    print("Press Ctrl+C to exit\n")
     ```
 
-    This code starts the audio processor so that it monitors the microphone for audio input and plays back audio output.
+    Esse código inicia o processador de áudio para que ele monitore o microfone para entrada de áudio e reproduza a saída de áudio.
 
-1. Find the comment **STEP 5: Process events**, and add the following code (being careful to maintain the same indentation as the step 4 code above):
+1. Localize o comentário **STEP 5: Process events** e adicione o seguinte código (tendo cuidado para manter a mesma indentação do código da etapa 4 acima):
 
     ```python
    # STEP 5: Process events
    await self.process_events()
     ```
 
-    This code runs the main loop to process events such as speech input, response output, and interruptions.
+    Esse código executa o loop principal para processar eventos como entrada de fala, saída de resposta e interrupções.
 
-1. Save the changes to the code file.
+1. Salve as alterações no arquivo de código.
 
-    The completed function should look like this:
+    A função concluída deve ficar assim:
 
     ```python
    async def start(self):
@@ -276,35 +276,35 @@ To use your agent in a custom application, you need to write code that uses the 
                     self.audio_processor.shutdown()
     ```
 
-## Run the application
+## Executar o aplicativo
 
-Now you're ready to run your application, and have a conversation with your agent.
+Agora você está pronto para executar seu aplicativo e conversar com o seu agente.
 
-> **TIP**: The application works best when using a headset. When using speakers, there's a risk that the agent can "hear" its own responses and process them as new user input.
+> **DICA**: O aplicativo funciona melhor ao usar um headset. Ao usar alto-falantes, há o risco de o agente "ouvir" as próprias respostas e processá-las como nova entrada do usuário.
 
-1. In the Visual Studio Code terminal, enter the following command to sign into Azure
+1. No terminal do Visual Studio Code, insira o seguinte comando para entrar no Azure
 
    ```powershell
     az login
     ```
 
-    When prompted, sign into Azure using your credentials.
+    Quando solicitado, entre no Azure usando suas credenciais.
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See *[Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)* for details.
+    > **Observação**: Na maioria dos cenários, usar apenas *az login* será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro *--tenant*. Consulte *[Entrar no Azure interativamente usando o Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively)* para obter detalhes.
 
-1. In the Visual Studio Code terminal, confirm the details of your Azure subscription; and then enter the following command to run the client application:
+1. No terminal do Visual Studio Code, confirme os detalhes da sua assinatura do Azure e, em seguida, insira o seguinte comando para executar o aplicativo cliente:
 
     ```powershell
     python chat-client.py
     ```
 
-1. When prompted, begin a conversation with the agent by asking a question such as "*How is computer speech used in AI?*".
-1. Listen to the response and then continue the conversation - note that you can interrupt the agent to ask new questions.
-1. When you're finished, press **CTRL+C** to end the conversation and stop the program.
+1. Quando solicitado, comece uma conversa com o agente fazendo uma pergunta como "*Como a fala computacional é usada em IA?*".
+1. Ouça a resposta e então continue a conversa — observe que você pode interromper o agente para fazer novas perguntas.
+1. Quando terminar, pressione **CTRL+C** para encerrar a conversa e parar o programa.
 
-## Clean up
+## Limpeza
 
-If you have finished exploring Microsoft Foundry, delete any resources that you no longer need. This avoids accruing any unnecessary costs.
+Se você terminou de explorar o Microsoft Foundry, exclua quaisquer recursos de que não precise mais. Isso evita a cobrança de custos desnecessários.
 
-1. Open the **Azure portal** at [https://portal.azure.com](https://portal.azure.com) and select the resource group that contains the resources you created.
-1. Select **Delete resource group** and then **enter the resource group name** to confirm. The resource group is then deleted.
+1. Abra o **Azure portal** em [https://portal.azure.com](https://portal.azure.com) e selecione o grupo de recursos que contém os recursos que você criou.
+1. Selecione **Delete resource group** e, em seguida, **enter the resource group name** para confirmar. O grupo de recursos será excluído.

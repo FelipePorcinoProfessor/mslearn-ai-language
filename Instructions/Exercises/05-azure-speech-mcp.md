@@ -1,55 +1,55 @@
 ---
 lab:
-    title: 'Use Azure Speech in an agent'
-    description: Use the Azure Speech in Foundry Tools MCP server to add speech capabilities to an agent.
+    title: 'Usar Azure Speech em um agente'
+    description: Use o servidor MCP do Azure Speech no Foundry Tools para adicionar recursos de fala a um agente.
     duration: 30
     level: 300
     islab: true
     status: 'released'
 ---
 
-# Use Azure Speech in an agent
+# Usar Azure Speech em um agente
 
-**Azure Speech in Foundry Tools** provides an MCP server that you can use to enable an agent to call its speech recognition and synthesis capabilities.
+O **Azure Speech no Foundry Tools** fornece um servidor MCP que você pode usar para permitir que um agente chame seus recursos de reconhecimento e síntese de fala.
 
-In this exercise, you'll configure the Azure Speech in Foundry Tools MCP server, and connect it to an agent.
+Neste exercício, você vai configurar o servidor MCP do Azure Speech no Foundry Tools e conectá-lo a um agente.
 
-The code used in this exercise is based on the Microsoft Foundry SDK for Python. You can develop similar solutions using the SDKs for Microsoft .NET, JavaScript, and Java. Refer to [Microsoft Foundry SDK client libraries](https://learn.microsoft.com/azure/ai-foundry/how-to/develop/sdk-overview) for details.
+O código usado neste exercício é baseado no Microsoft Foundry SDK for Python. Você pode desenvolver soluções semelhantes usando os SDKs para Microsoft .NET, JavaScript e Java. Consulte [Microsoft Foundry SDK client libraries](https://learn.microsoft.com/azure/ai-foundry/how-to/develop/sdk-overview) para obter detalhes.
 
-This exercise takes approximately **30** minutes.
+Este exercício leva aproximadamente **30** minutos.
 
-> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+> **Observação**: Algumas das tecnologias usadas neste exercício estão em versão prévia ou em desenvolvimento ativo. Você pode enfrentar comportamentos inesperados, avisos ou erros.
 
-## Prerequisites
+## Pré-requisitos
 
-Before starting this exercise, ensure you have:
+Antes de iniciar este exercício, verifique se você tem:
 
-- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
-- [Visual Studio Code](https://code.visualstudio.com/) installed
-- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
-- [Git](https://git-scm.com/install/) installed and configured
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+- Uma [assinatura do Azure](https://azure.microsoft.com/pricing/purchase-options/azure-account) ativa
+- [Visual Studio Code](https://code.visualstudio.com/) instalado
+- [Python versão **3.13.xx**](https://www.python.org/downloads/release/python-31312/) instalado\*
+- [Git](https://git-scm.com/install/) instalado e configurado
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) instalado
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* O Python 3.14 está disponível, mas algumas dependências ainda não foram compiladas para essa versão. O laboratório foi testado com êxito com o Python 3.13.12.
 
-## Create an Azure storage account
+## Criar uma conta de armazenamento do Azure
 
-The Azure Speech MCP server uses an Azure storage account to save generated audio files.
+O servidor MCP do Azure Speech usa uma conta de armazenamento do Azure para salvar arquivos de áudio gerados.
 
-1. Open the [Azure portal](https://portal.azure.com) at `https://portal.azure.com`, and sign in using your Azure credentials.
-1. Create a new **Azure storage account** resource with the following settings:
-    - **Subscription**: *Your subscription*
-    - **Resource group**: *Create or select a resource group*
-    - **Storage account name**: *A unique name for your storage account*
-    - **Region**: *Any available region*
-    - **Preferred storage type**: Azure blob storage or Azure Data Lake Storage Gen2
+1. Abra o [portal do Azure](https://portal.azure.com) em `https://portal.azure.com` e entre com suas credenciais do Azure.
+1. Crie um novo recurso **Azure storage account** com as seguintes configurações:
+    - **Subscription**: *Sua assinatura*
+    - **Resource group**: *Crie ou selecione um grupo de recursos*
+    - **Storage account name**: *Um nome exclusivo para sua conta de armazenamento*
+    - **Region**: *Qualquer região disponível*
+    - **Preferred storage type**: Azure blob storage ou Azure Data Lake Storage Gen2
     - **Primary workload**: Cloud native
     - **Performance**: Standard
     - **Redundancy**: Locally-redundant storage (LRS)
-1. When the Azure storage account resource has been created, go to it in the portal.
-1. In the left navigation pane for the storage account, expand **Data storage**, and select **Containers**.
-1. Add a new container named **files**. This is where your agent will save the audio files it generates.
-1. In the context menu (**...**) for the **files** container, select **Generate SAS**, and create a SAS token with the following details:
+1. Quando o recurso da conta de armazenamento do Azure for criado, acesse-o no portal.
+1. No painel de navegação esquerdo da conta de armazenamento, expanda **Data storage** e selecione **Containers**.
+1. Adicione um novo contêiner chamado **files**. É aqui que seu agente salvará os arquivos de áudio que gerar.
+1. No menu de contexto (**...**) do contêiner **files**, selecione **Generate SAS** e crie um token SAS com os seguintes detalhes:
     - **Signing method** : Account key
     - **Signing key**: Key1
     - **Stored access policy**: None
@@ -60,153 +60,153 @@ The Azure Speech MCP server uses an Azure storage account to save generated audi
         - Write
         - List
     - **Start and expiry date/time**:
-        - **Start**: The current date and time
-        - **Expiry**: 11:59pm tomorrow
-    - **Allowed IP addresses**: *Leave blank*
+        - **Start**: A data e hora atuais
+        - **Expiry**: 23:59 de amanhã
+    - **Allowed IP addresses**: *Deixe em branco*
     - **Allowed protocols**: HTTPS only
 
-    > **IMPORTANT**: Copy the generated SAS token and URL, and store them in a text file for now - you'll need them later!
+    > **IMPORTANTE**: Copie o token e a URL SAS gerados e armazene-os em um arquivo de texto por enquanto — você vai precisar deles mais tarde!
 
-## Create a Microsoft Foundry project
+## Criar um projeto Microsoft Foundry
 
-Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
+O Microsoft Foundry usa projetos para organizar modelos, recursos, dados e outros ativos usados para desenvolver uma solução de IA.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. Em um navegador da web, abra o [portal Microsoft Foundry](https://ai.azure.com) em `https://ai.azure.com` e entre usando suas credenciais do Azure. Feche quaisquer dicas ou painéis de início rápido que sejam abertos na primeira vez em que você entrar e, se necessário, use o logotipo do Foundry no canto superior esquerdo para navegar até a página inicial.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
-    - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*
-    - **Subscription**: *Your Azure subscription*
-    - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any available region
+1. Se ainda não estiver habilitada, na barra de ferramentas na parte superior da página, habilite a opção **New Foundry**. Em seguida, se solicitado, crie um novo projeto com um nome exclusivo; expandindo a área **Advanced options** para especificar as seguintes configurações para seu projeto:
+    - **Foundry resource**: *Use o nome padrão do seu recurso (geralmente {project_name}-resource)*
+    - **Subscription**: *Sua assinatura do Azure*
+    - **Resource group**: *Crie ou selecione um grupo de recursos*
+    - **Region**: Selecione qualquer região disponível
 
-    > **Note**: Use a recommended Microsoft Foundry region. Model availability may vary by region.
+    > **Observação**: Use uma região recomendada do Microsoft Foundry. A disponibilidade do modelo pode variar por região.
 
-    > **TIP**: Remember (or make a note of) the Foundry resource name - you're going to need it later!
+    > **DICA**: Lembre-se (ou anote) o nome do recurso Foundry — você vai precisar dele mais tarde!
 
-1. Wait for your project to be created.
-1. On the home page for your project, note that the API key, project endpoint, and OpenAI endpoint are displayed here.
+1. Aguarde a criação do seu projeto.
+1. Na página inicial do seu projeto, observe que a chave de API, o endpoint do projeto e o OpenAI endpoint são exibidos aqui.
 
-    > **TIP**: Copy the project key to the clipboard - you're going to need it later!
+    > **DICA**: Copie a chave do projeto para a área de transferência — você vai precisar dela mais tarde!
 
-## Create an agent
+## Criar um agente
 
-Now that you have a Foundry project, you can create an agent.
+Agora que você tem um projeto Foundry, pode criar um agente.
 
-1. Now you're ready to **Start building**. Select **Create agents** (or on the **Build** page, select the **Agents** tab); and create a new agent named `speech-agent`.
+1. Agora você está pronto para **Start building**. Selecione **Create agents** (ou na página **Build**, selecione a guia **Agents**); e crie um novo agente chamado `speech-agent`.
 
-     When ready, your agent opens in the agent playground.
+     Quando estiver pronto, seu agente será aberto no playground do agente.
 
-1. In the model drop-down list, ensure that a **gpt-5** model has been deployed and selected for your agent.
-1. Assign your agent the following **Instructions**:
+1. Na lista suspensa de modelos, verifique se um modelo **gpt-5** foi implantado e selecionado para o seu agente.
+1. Atribua ao seu agente as seguintes **Instructions**:
 
     ```
     You are an AI agent that uses the Azure AI Speech tool to transcribe and generate speech.
     ```
 
-1. Use the **Save** button to save the changes.
-1. Test the agent by entering the following prompt in the **Chat** pane:
+1. Use o botão **Save** para salvar as alterações.
+1. Teste o agente inserindo o seguinte prompt no painel **Chat**:
 
     ```
    What can you help me with?
     ```
 
-    The agent should respond with an appropriate answer based on its instructions.
+    O agente deve responder com uma resposta apropriada com base em suas instruções.
 
-## Create an Azure Speech in Foundry Tools connection
+## Criar uma conexão do Azure Speech no Foundry Tools
 
-Foundry includes an MCP server for Azure Speech in Foundry Tools, which you can connect to your project and use in your agent.
+O Foundry inclui um servidor MCP para Azure Speech no Foundry Tools, que você pode conectar ao seu projeto e usar no seu agente.
 
-1. In the navigation pane on the left, select the **Tools** page.
-1. On the **Tools** tab, connect a tool; selecting **Azure Speech MCP Server** in the **Catalog** and connecting it to an endpoint. specifying the following configuration
-    - **Name**: *A unique name for your tool.*
+1. No painel de navegação à esquerda, selecione a página **Tools**.
+1. Na guia **Tools**, conecte uma ferramenta; selecionando **Azure Speech MCP Server** no **Catalog** e conectando-a a um endpoint, especificando a seguinte configuração
+    - **Name**: *Um nome exclusivo para sua ferramenta.*
     - **Remote MCP Server endpoint**: `https://{foundry-resource-name}.cognitiveservices.azure.com/speech/mcp?api-version=2025-11-15-preview`
-    - **Parameters**: foundry-resource-name: *Your foundry resource name*
+    - **Parameters**: foundry-resource-name: *O nome do seu recurso Foundry*
     - **Authentication**: Key-based:
-    - **Ocp-Apim-Subscription-Key**: *API Key for your Foundry project*
+    - **Ocp-Apim-Subscription-Key**: *API Key do seu projeto Foundry*
 
-    - **X-Blob-Container-Url**: *The SAS URL for your storage container*
+    - **X-Blob-Container-Url**: *A URL SAS do seu contêiner de armazenamento*
 
-    > **Note**: If key-based authentication is disabled by a policy in your Azure subscription, you can use Entra ID authentication to connect the agent to the Azure Speech service.
+    > **Observação**: Se a autenticação baseada em chave estiver desabilitada por uma política na sua assinatura do Azure, você pode usar a autenticação do Entra ID para conectar o agente ao serviço Azure Speech.
 
-1. Wait for the MCP tool connection to be created, and then view its details page.
-1. On the details page for the Azure Speech in Foundry Tools connection, select **Use in an agent**, and then select the **Speech-Agent** agent you created previously.
+1. Aguarde a criação da conexão da ferramenta MCP e, em seguida, visualize sua página de detalhes.
+1. Na página de detalhes da conexão do Azure Speech no Foundry Tools, selecione **Use in an agent** e, em seguida, selecione o agente **Speech-Agent** que você criou anteriormente.
 
-    The agent should open in the playground, with the Azure Speech in Foundry Tools tool connected.
+    O agente deve ser aberto no playground, com a ferramenta Azure Speech no Foundry Tools conectada.
 
-## Test the Azure Speech tool in the playground
+## Testar a ferramenta Azure Speech no playground
 
-Now let's test the agent's ability to use the tool you connected.
+Agora vamos testar a capacidade do agente de usar a ferramenta que você conectou.
 
-1. In the agent playground for the **speech-agent** agent, enter the following prompt:
+1. No playground do agente para o agente **speech-agent**, insira o seguinte prompt:
 
     ```
     Generate "To be or not to be, that is the question." as speech
     ```
 
-1. When prompted, approve use of the Azure Speech tool by selecting **Always approve all Azure Speech MCP Server tools**.
+1. Quando for solicitado, aprove o uso da ferramenta Azure Speech selecionando **Always approve all Azure Speech MCP Server tools**.
 
-1. Review the response, which should include a link to the generated audio file. Then click the link to hear the synthesized speech.
-1. Enter the following prompt:
+1. Revise a resposta, que deve incluir um link para o arquivo de áudio gerado. Em seguida, clique no link para ouvir a fala sintetizada.
+1. Insira o seguinte prompt:
 
     ```
     Transcribe the file at https://microsoftlearning.github.io/mslearn-ai-language/Labfiles/05-speech-tool/speech_1.wav
     ```
 
-1. If prompted, approve use of the Azure Speech tool by selecting **Always approve all Azure Speech MCP Server tools**.
+1. Se solicitado, aprove o uso da ferramenta Azure Speech selecionando **Always approve all Azure Speech MCP Server tools**.
 
-    > **Note**: If a transient error occurs while calling the tool, refresh the page and retry the same prompt.
+    > **Observação**: Se ocorrer um erro transitório ao chamar a ferramenta, atualize a página e tente o mesmo prompt novamente.
 
-    > **Note**: You may see a message stating that the interaction was blocked by a Foundry guardrail. This happens because Foundry's built-in content safety checks flag the transcribed content of `speech_1.wav`. If this occurs, retry the prompt using `speech_2.wav` instead, which is not affected.
-    
-1. Review the output, which should be a transcription of the audio file.
+    > **Observação**: Você pode ver uma mensagem informando que a interação foi bloqueada por um Foundry guardrail. Isso acontece porque as verificações internas de segurança de conteúdo do Foundry sinalizam o conteúdo transcrito de `speech_1.wav`. Se isso ocorrer, tente novamente o prompt usando `speech_2.wav`, que não é afetado.
 
-## Create a client application
+1. Revise a saída, que deve ser uma transcrição do arquivo de áudio.
 
-Now that you have a working agent, you can create a client application that uses it.
+## Criar um aplicativo cliente
 
-### Get the application files from GitHub
+Agora que você tem um agente funcional, pode criar um aplicativo cliente que o utiliza.
 
-1. Open Visual Studio Code.
-1. Open the command palette (*Ctrl+Shift+P*) and use the `Git:clone` command to clone the `https://github.com/microsoftlearning/mslearn-ai-language` repo to a local folder (it doesn't matter which one). Then open it.
+### Obter os arquivos do aplicativo no GitHub
 
-    You may be prompted to confirm you trust the authors.
+1. Abra o Visual Studio Code.
+1. Abra a paleta de comandos (*Ctrl+Shift+P*) e use o comando `Git:clone` para clonar o repositório `https://github.com/microsoftlearning/mslearn-ai-language` para uma pasta local (não importa qual). Em seguida, abra-o.
 
-1. After the repo has been cloned, in the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/05-speech-tool/Python/speech-client**. The application files include:
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **speech-client.py** (the code file for the application)
+    Pode ser solicitado que você confirme se confia nos autores.
 
-### Configure the application
+1. Depois que o repositório for clonado, no painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/05-speech-tool/Python/speech-client**. Os arquivos do aplicativo incluem:
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **speech-client.py** (o arquivo de código do aplicativo)
 
-1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.1x installation.
+### Configurar o aplicativo
 
-    > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */Labfiles/05-speech-tool/Python/speech-client* folder; but it's OK if you don't - we'll install them later!
+1. No Visual Studio Code, exiba o painel **Extensions**; e, se ainda não estiver instalada, instale a extensão **Python**.
+1. Na **Command Palette**, use o comando `python:select interpreter`. Em seguida, selecione um ambiente existente se você tiver um ou crie um novo ambiente **Venv** com base na sua instalação do Python 3.1x.
 
-    > **Tip**: If you prefer to use the terminal, you can create your **Venv** environment with `python -m venv labenv`, then activate it with `\labenv\Scripts\activate`.
+    > **Dica**: Se você for solicitado a instalar dependências, poderá instalar as do arquivo *requirements.txt* na pasta */Labfiles/05-speech-tool/Python/speech-client*; mas tudo bem se você não o fizer — vamos instalá-las mais tarde!
 
-1. In the **Explorer** pane, right-click the **speech-client** folder containing the application files, and select **Open in integrated terminal** (or open a terminal in the **Terminal** menu and navigate to the */Labfiles/05-speech-tool/Python/speech-client* folder.)
+    > **Dica**: Se preferir usar o terminal, você pode criar seu ambiente **Venv** com `python -m venv labenv` e depois ativá-lo com `\labenv\Scripts\activate`.
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+1. No painel **Explorer**, clique com o botão direito do mouse na pasta **speech-client** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou abra um terminal no menu **Terminal** e navegue até a pasta */Labfiles/05-speech-tool/Python/speech-client*.)
 
-1. Ensure that the terminal is open in the **speech-client** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the Foundry SDK package, the Azure Identity package, and other required packages by running the following command:
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Pode ser necessário habilitar a execução de scripts no seu sistema.
+
+1. Verifique se o terminal está aberto na pasta **speech-client** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Instale o pacote Foundry SDK, o pacote Azure Identity e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt
     ```
 
-1. In the **Explorer** pane, in the **speech-client** folder, select the **.env** file to open it. Then update the configuration values to include your project **endpoint** (from the project home page in Foundry Portal) and the name of your agent (which should be **speech-agent** - note that this name is case-sensitive).
-1. Save the modified configuration file.
+1. No painel **Explorer**, na pasta **speech-client**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para incluir o **endpoint** do seu projeto (na página inicial do projeto no Foundry Portal) e o nome do seu agente (que deve ser **speech-agent** — observe que esse nome diferencia maiúsculas de minúsculas).
+1. Salve o arquivo de configuração modificado.
 
-### Implement application code
+### Implementar o código do aplicativo
 
-1. In the **Explorer** pane, in the **speech-client** folder,  open the **speech-client.py** file.
-1. Review the existing code. You will add code to submit prompts to your agent.
+1. No painel **Explorer**, na pasta **speech-client**, abra o arquivo **speech-client.py**.
+1. Revise o código existente. Você adicionará código para enviar prompts ao seu agente.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespaces you will need:
+1. No início do arquivo de código, abaixo das referências de namespace existentes, encontre o comentário **Import namespaces** e adicione o seguinte código para importar os namespaces de que você precisa:
 
     ```python
    # import namespaces
@@ -214,7 +214,7 @@ Now that you have a working agent, you can create a client application that uses
    from azure.ai.projects import AIProjectClient
     ```
 
-1. In the **main** function, note that code to load the endpoint from the configuration file has already been provided. Then find the comment **Get project client**, and add the following code to create a client for your Foundry project:
+1. Na função **main**, observe que o código para carregar o endpoint do arquivo de configuração já foi fornecido. Em seguida, encontre o comentário **Get project client** e adicione o seguinte código para criar um cliente para o seu projeto Foundry:
 
     ```python
    # Get project client
@@ -224,14 +224,14 @@ Now that you have a working agent, you can create a client application that uses
    )
     ```
 
-1. Find the comment **Get an OpenAI client**, and add the following code to get an OpenAI client with which to call your agent.
+1. Encontre o comentário **Get an OpenAI client** e adicione o seguinte código para obter um cliente OpenAI com o qual chamar seu agente.
 
     ```python
    # Get an OpenAI client
    openai_client = project_client.get_openai_client()
     ```
 
-1. Find the comment **Use the agent to get a response**, and add the following code to submit a user prompt to your agent, and display the response.
+1. Encontre o comentário **Use the agent to get a response** e adicione o seguinte código para enviar um prompt do usuário ao seu agente e exibir a resposta.
 
     ```python
    # Use the agent to get a response
@@ -243,46 +243,46 @@ Now that you have a working agent, you can create a client application that uses
    print(f"{agent_name}: {response.output_text}")
     ```
 
-1. Save the changes you made to the code file.
+1. Salve as alterações feitas no arquivo de código.
 
-## Test the client application
+## Testar o aplicativo cliente
 
-Now let's test the application by running it in a Python environment and authenticating the connection to your project.
+Agora vamos testar o aplicativo executando-o em um ambiente Python e autenticando a conexão com o seu projeto.
 
-1. In the terminal pane, use the following command to sign into Azure.
+1. No painel do terminal, use o seguinte comando para entrar no Azure.
 
     ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, usar apenas *az login* será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro *--tenant*. Consulte [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, visualizando (e confirmando, se necessário) os detalhes da assinatura que contém seu recurso Foundry.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```powershell
     python speech-client.py
     ```
 
-1. When prompted, enter the following prompt:
+1. Quando solicitado, insira o seguinte prompt:
 
     ```
     Synthesize "Better a witty fool, than a foolish wit!" as speech using the voice "en-GB-SoniaNeural".
     ```
 
-1. Review the response, which should include a clickable link to a generated audio file.
-1. After checking out the generated audio file, enter the following prompt:
+1. Revise a resposta, que deve incluir um link clicável para um arquivo de áudio gerado.
+1. Depois de verificar o arquivo de áudio gerado, insira o seguinte prompt:
 
      ```
      Transcribe https://microsoftlearning.github.io/mslearn-ai-language/Labfiles/05-speech-tool/speech_2.wav
      ```
 
-1. Review the response.
-1. To exit the program, enter "quit" (or just press return)
+1. Revise a resposta.
+1. Para sair do programa, digite "quit" (ou apenas pressione Enter)
 
-## Clean up resources
+## Limpar recursos
 
-If you're finished exploring the Azure AI Language service, you can delete the resources you created in this exercise. Here's how:
+Se você terminou de explorar o serviço Azure AI Language, pode excluir os recursos que criou neste exercício. Veja como:
 
-1. In the Azure portal, browse to the Foundry resource you created in this lab.
-1. On the resource page, select **Delete** and follow the instructions to delete the resource.
+1. No portal do Azure, navegue até o recurso Foundry que você criou neste laboratório.
+1. Na página do recurso, selecione **Delete** e siga as instruções para excluir o recurso.

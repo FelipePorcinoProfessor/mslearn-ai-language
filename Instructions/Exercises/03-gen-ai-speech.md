@@ -1,131 +1,131 @@
 ---
 lab:
-    title: 'Use speech-capable generative AI models'
-    description: Implement speech functionality using generative AI.
+    title: 'Use modelos de IA generativa com suporte a fala'
+    description: Implemente funcionalidade de fala usando IA generativa.
     duration: 30
     level: 300
     islab: true
     status: 'released'
 ---
 
-# Use speech-capable generative AI models
+# Use modelos de IA generativa com suporte a fala
 
-Increasingly, generative AI model capabilities are evolving beyond text-based language completion to support content in other formats - including audible speech.
+Cada vez mais, os recursos dos modelos de IA generativa estão evoluindo além do preenchimento de linguagem baseado em texto para oferecer suporte a conteúdo em outros formatos — incluindo fala audível.
 
-In this exercise, you'll use generative AI models to support two common scenarios:
+Neste exercício, você usará modelos de IA generativa para dar suporte a dois cenários comuns:
 
-- Speech synthesis (text-to-speech) - generating speech output.
-- Speech recognition (speech-to-text) - transcribing speech input.
+- Síntese de fala (text-to-speech) — geração de saída de voz.
+- Reconhecimento de fala (speech-to-text) — transcrição de entrada de voz.
 
-While this exercise is based on Python, you can develop generative AI speech applications using multiple language-specific SDKs; including:
+Embora este exercício seja baseado em Python, você pode desenvolver aplicativos de fala com IA generativa usando vários SDKs específicos de linguagem; incluindo:
 
 - [OpenAI SDK for Python](https://pypi.org/project/openai/)
 - [OpenAI SDK for .NET](<https://www.nuget.org/packages/OpenAI>)
 - [OpenAI SDK for JavaScript](https://www.npmjs.com/package/openai)
 
-This exercise takes approximately **30** minutes.
+Este exercício leva aproximadamente **30** minutos.
 
-> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+> **Observação**: Algumas das tecnologias usadas neste exercício estão em versão prévia ou em desenvolvimento ativo. Você pode encontrar comportamentos inesperados, avisos ou erros.
 
-## Prerequisites
+## Pré-requisitos
 
-Before starting this exercise, ensure you have:
+Antes de começar este exercício, verifique se você tem:
 
-- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
-- [Visual Studio Code](https://code.visualstudio.com/) installed
-- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
-- [Git](https://git-scm.com/install/) installed and configured
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+- Uma [assinatura do Azure](https://azure.microsoft.com/pricing/purchase-options/azure-account) ativa
+- [Visual Studio Code](https://code.visualstudio.com/) instalado
+- [Python versão **3.13.xx**](https://www.python.org/downloads/release/python-31312/) instalado\*
+- [Git](https://git-scm.com/install/) instalado e configurado
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) instalada
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* O Python 3.14 está disponível, mas algumas dependências ainda não foram compiladas para essa versão. O laboratório foi testado com sucesso no Python 3.13.12.
 
-## Create a Microsoft Foundry project
+## Criar um projeto do Microsoft Foundry
 
-Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
+O Microsoft Foundry usa projetos para organizar modelos, recursos, dados e outros ativos usados para desenvolver uma solução de IA.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. Em um navegador da Web, abra o [Microsoft Foundry portal](https://ai.azure.com) em `https://ai.azure.com` e entre usando suas credenciais do Azure. Feche quaisquer dicas ou painéis de início rápido que forem abertos na primeira vez que você entrar e, se necessário, use o logotipo do Foundry no canto superior esquerdo para navegar até a página inicial.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
-    - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*
-    - **Subscription**: *Your Azure subscription*
-    - **Resource group**: *Create or select a resource group*
-    - **Region**: Select *East US 2* (For this exercises some models are only available in this location.)
+1. Se ainda não estiver habilitado, na barra de ferramentas na parte superior da página, habilite a opção **New Foundry**. Em seguida, se solicitado, crie um novo projeto com um nome exclusivo; expandindo a área **Advanced options** para especificar as seguintes configurações para o seu projeto:
+    - **Foundry resource**: Use o nome padrão do recurso (geralmente {project_name}-resource)
+    - **Subscription**: Sua assinatura do Azure
+    - **Resource group**: Crie ou selecione um grupo de recursos
+    - **Region**: Selecione East US 2 (Para este exercício, alguns modelos estão disponíveis somente nessa localização.)
 
-1. Select **Create**. Wait for your project to be created. Then view its home page.
+1. Selecione **Create**. Aguarde a criação do seu projeto. Em seguida, exiba sua página inicial.
 
-## Deploy models
+## Implantar modelos
 
-To develop speech-enables apps, we're going to need speech-enabled models. Specifically, we need a model that can perform speech-generation, and a model that can process speech input.
+Para desenvolver apps com suporte a fala, vamos precisar de modelos habilitados para fala. Especificamente, precisamos de um modelo que possa realizar geração de fala e um modelo que possa processar entrada de fala.
 
-### Deploy a speech-generation model
+### Implantar um modelo de geração de fala
 
-1. Now you're ready to **Start building**. Let's **Explore models** (or on the **Discover** page, select the **Models** tab) to view the Microsoft Foundry model catalog.
-1. In the model catalog, search for `gpt-4o-mini-tts` or another text-to-speech model available in your region.
-1. Review the model card, and then deploy an available text-to-speech model using the default settings.
-1. When the model has been deployed, view its details, noting that the **Target URI** and **Key** required to use it are available here (you'll need the Target URI later).
+1. Agora você está pronto para **Start building**. Vamos **Explore models** (ou, na página **Discover**, selecione a guia **Models**) para ver o catálogo de modelos do Microsoft Foundry.
+1. No catálogo de modelos, pesquise por `gpt-4o-mini-tts` ou outro modelo de text-to-speech disponível na sua região.
+1. Revise o cartão do modelo e, em seguida, implante um modelo de text-to-speech disponível usando as configurações padrão.
+1. Quando o modelo for implantado, exiba seus detalhes, observando que o **Target URI** e a **Key** necessários para usá-lo estão disponíveis aqui (você precisará do Target URI mais tarde).
 
-    > **IMPORTANT**: `gpt-4o-mini-tts` is a recommended model for this exercise, not a required one. If it is unavailable in your region, deploy a supported text-to-speech model instead.
+    > **IMPORTANTE**: `gpt-4o-mini-tts` é um modelo recomendado para este exercício, não um requisito. Se ele não estiver disponível na sua região, implante um modelo de text-to-speech compatível.
 
-### Deploy a speech-recognition model
+### Implantar um modelo de reconhecimento de fala
 
-1. In the Foundry portal menu bar, select **Build**; and then view the **Deployments** page. Note that the text-to-speech model you deployed is listed.
-1. Select **Deploy a base model**, and search the catalog for `gpt-4o-mini-transcribe` or another speech-to-text model available in your region.
-1. Deploy an available speech-to-text model using the default settings.
-1. Return to the **Deployments** page and verify that both of the model you deployed are listed.
-1. Select either of the models to view the Target URI you need to use in your code.
+1. Na barra de menus do Foundry portal, selecione **Build**; e depois exiba a página **Deployments**. Observe que o modelo de text-to-speech que você implantou está listado.
+1. Selecione **Deploy a base model** e pesquise no catálogo por `gpt-4o-mini-transcribe` ou outro modelo de speech-to-text disponível na sua região.
+1. Implemente um modelo de speech-to-text disponível usando as configurações padrão.
+1. Volte à página **Deployments** e verifique se os dois modelos que você implantou estão listados.
+1. Selecione qualquer um dos modelos para ver o Target URI que você precisa usar no seu código.
 
-    > **IMPORTANT**: `gpt-4o-mini-transcribe` is a recommended model for this exercise, not a required one. If it is unavailable in your region, deploy a supported speech-to-text model instead.
+    > **IMPORTANTE**: `gpt-4o-mini-transcribe` é um modelo recomendado para este exercício, não um requisito. Se ele não estiver disponível na sua região, implante um modelo de speech-to-text compatível.
 
-## Get the application files from GitHub
+## Obter os arquivos do aplicativo no GitHub
 
-The initial application files you'll need to develop speech applications are provided in a GitHub repo.
+Os arquivos iniciais do aplicativo de que você precisará para desenvolver aplicativos de fala são fornecidos em um repositório do GitHub.
 
-1. Open Visual Studio Code.
-1. Open the command palette (*Ctrl+Shift+P*) and use the `Git:clone` command to clone the `https://github.com/microsoftlearning/mslearn-ai-language` repo to a local folder (it doesn't matter which one). Then open it.
+1. Abra o Visual Studio Code.
+1. Abra a paleta de comandos (Ctrl+Shift+P) e use o comando `Git:clone` para clonar o repositório `https://github.com/microsoftlearning/mslearn-ai-language` para uma pasta local (não importa qual). Depois, abra-o.
 
-    You may be prompted to confirm you trust the authors.
+    Pode ser solicitado que você confirme que confia nos autores.
 
-1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.1x installation.
+1. No Visual Studio Code, exiba o painel **Extensions**; e, se ainda não estiver instalada, instale a extensão **Python**.
+1. Na **Command Palette**, use o comando `python:select interpreter`. Em seguida, selecione um ambiente existente, se você tiver um, ou crie um novo ambiente **Venv** com base na sua instalação do Python 3.1x.
 
-    > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */Labfiles/03-gen-ai-speech/Python/generate-speech* folder; but it's OK if you don't - we'll install them later!
+    > **Dica**: Se você for solicitado a instalar dependências, você pode instalar as que estão no arquivo *requirements.txt* na pasta */Labfiles/03-gen-ai-speech/Python/generate-speech*; mas tudo bem se não instalar — nós as instalaremos mais tarde!
 
-    > **Tip**: If you prefer to use the terminal, you can create your **Venv** environment with `python -m venv labenv`, then activate it with `\labenv\Scripts\activate`.
+    > **Dica**: Se preferir usar o terminal, você pode criar seu ambiente **Venv** com `python -m venv labenv` e ativá-lo com `\labenv\Scripts\activate`.
 
-## Create a speech-generation app
+## Criar um aplicativo de geração de fala
 
-1. After the repo has been cloned, in the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/03-gen-ai-speech/Python/generate-speech**. The application files include:
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **generate-speech.py** (the code file for the application)
+1. Depois que o repositório for clonado, no painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/03-gen-ai-speech/Python/generate-speech**. Os arquivos do aplicativo incluem:
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **generate-speech.py** (o arquivo de código do aplicativo)
 
-### Configure your application
+### Configurar seu aplicativo
 
-1. In the **Explorer** pane, right-click the **generate-speech** folder containing the application files, and select **Open in integrated terminal** (or open a terminal in the **Terminal** menu and navigate to the */Labfiles/03-gen-ai-speech/Python/generate-speech* folder.)
+1. No painel **Explorer**, clique com o botão direito do mouse na pasta **generate-speech** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou abra um terminal no menu **Terminal** e navegue até a pasta */Labfiles/03-gen-ai-speech/Python/generate-speech*.)
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Talvez seja necessário habilitar a execução de scripts no seu sistema.
 
-1. Ensure that the terminal is open in the **generate-speech** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the OpenAI SDK package and other required packages by running the following command:
+1. Verifique se o terminal está aberto na pasta **generate-speech** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Instale o pacote OpenAI SDK e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt
     ```
 
-1. In the **Explorer** pane, in the **generate-speech** folder, select the **.env** file to open it. Then update the configuration values to include the **Target URI** (endpoint) for your **gpt-4o-mini-tts** model.
+1. No painel **Explorer**, na pasta **generate-speech**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para incluir o **Target URI** (endpoint) do seu modelo **gpt-4o-mini-tts**.
 
-    > **Tip**: Copy the Target URI from the model details page in the Foundry portal.
+    > **Dica**: Copie o Target URI da página de detalhes do modelo no Foundry portal.
 
-    Save the modified configuration file.
+    Salve o arquivo de configuração modificado.
 
-### Write code to use the model for speech-generation
+### Escrever código para usar o modelo para geração de fala
 
-1. In the **Explorer** pane, in the **generate-speech** folder, select the **generate-speech.py** file to open it.
-1. Review the existing code. You will add code to use the OpenAI SDK to access your model.
+1. No painel **Explorer**, na pasta **generate-speech**, selecione o arquivo **generate-speech.py** para abri-lo.
+1. Revise o código existente. Você adicionará código para usar o OpenAI SDK para acessar seu modelo.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespace you will need to use the OpenAI SDK:
+1. Na parte superior do arquivo de código, sob as referências de namespace existentes, encontre o comentário **Import namespaces** e adicione o seguinte código para importar o namespace necessário para usar o OpenAI SDK:
 
     ```python
    # import namespaces
@@ -133,7 +133,7 @@ The initial application files you'll need to develop speech applications are pro
    from azure.identity import DefaultAzureCredential, get_bearer_token_provider
     ```
 
-1. In the **main** function, note that code to load the endpoint from the configuration file has already been provided. Then find the comment **Create the Azure OpenAI client**, and add the following code to create a client for the OpenAI API:
+1. Na função **main**, observe que o código para carregar o endpoint do arquivo de configuração já foi fornecido. Em seguida, encontre o comentário **Create the Azure OpenAI client** e adicione o seguinte código para criar um cliente para a API do OpenAI:
 
     ```Python
    # Create the Azure OpenAI client
@@ -148,7 +148,7 @@ The initial application files you'll need to develop speech applications are pro
    )
     ```
 
-1. Find the comment **Generate speech and save to file**, and add the following code to submit a prompt to the speech-generation model save the response as a file.
+1. Encontre o comentário **Generate speech and save to file** e adicione o seguinte código para enviar um prompt ao modelo de geração de fala e salvar a resposta como um arquivo.
 
     ```Python
    # Generate speech and save to file
@@ -161,63 +161,63 @@ The initial application files you'll need to develop speech applications are pro
         response.stream_to_file(speech_file_path)
     ```
 
-1. Save the changes to the code file.
+1. Salve as alterações no arquivo de código.
 
-### Run the application
+### Executar o aplicativo
 
-1. In the terminal pane, use the following command to sign into Azure.
+1. No painel do terminal, use o seguinte comando para entrar no Azure.
 
     ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, apenas usar o comando az login será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro --tenant. Consulte [Entrar no Azure de forma interativa usando o Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, exibindo (e confirmando, se necessário) os detalhes da assinatura que contém seu recurso do Foundry.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```
    python generate-speech.py
     ```
 
-1. Observe the output as the code generates the requested speech and saves it in a file. The code should also play the generated audio file.
+1. Observe a saída enquanto o código gera a fala solicitada e a salva em um arquivo. O código também deve reproduzir o arquivo de áudio gerado.
 
-## Create a speech-transcription app
+## Criar um aplicativo de transcrição de fala
 
-1. In the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/03-gen-ai-speech/Python/transcribe-speech**. The application files include:
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **transcribe-speech.py** (the code file for the application)
+1. No painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/03-gen-ai-speech/Python/transcribe-speech**. Os arquivos do aplicativo incluem:
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **transcribe-speech.py** (o arquivo de código do aplicativo)
 
-### Configure your application
+### Configurar seu aplicativo
 
-1. In the **Explorer** pane, right-click the **transcribe-speech** folder containing the application files, and select **Open in integrated terminal** (or in the existing terminal, navigate to the */Labfiles/03-gen-ai-speech/Python/transcribe-speech* folder.)
+1. No painel **Explorer**, clique com o botão direito do mouse na pasta **transcribe-speech** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou, no terminal existente, navegue até a pasta */Labfiles/03-gen-ai-speech/Python/transcribe-speech*.)
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Talvez seja necessário habilitar a execução de scripts no seu sistema.
 
-1. Ensure that the terminal is open in the **transcribe-speech** folder with the prefix **(.venv)** to indicate that the Python environment you created previously is active.
-1. Install the OpenAI SDK package and other required packages by running the following command:
+1. Verifique se o terminal está aberto na pasta **transcribe-speech** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou anteriormente está ativo.
+1. Instale o pacote OpenAI SDK e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt
     ```
 
-    > **Note**: This step isn't actually necessary if you completed the previous part of this exercise, as botg apps use the same environment and have the same dependencies - but it won't do any harm!
+    > **Observação**: Esta etapa na verdade não é necessária se você concluiu a parte anterior deste exercício, pois botg apps usam o mesmo ambiente e têm as mesmas dependências — mas não haverá problema em executá-la!
 
-1. In the **Explorer** pane, in the **transcribe-speech** folder, select the **.env** file to open it. Then update the configuration values to include the **Target URI** (endpoint) for your **gpt-4o-mini-transcribe** model.
+1. No painel **Explorer**, na pasta **transcribe-speech**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para incluir o **Target URI** (endpoint) do seu modelo **gpt-4o-mini-transcribe**.
 
-    > **Tip**: Copy the Target URI from the model details page in the Foundry portal.
+    > **Dica**: Copie o Target URI da página de detalhes do modelo no Foundry portal.
 
-    Save the modified configuration file.
+    Salve o arquivo de configuração modificado.
 
-### Write code to use the model for speech-transcription
+### Escrever código para usar o modelo para transcrição de fala
 
-1. In the **Explorer** pane, in the **transcribe-speech** folder, select the **transcribe-speech.py** file to open it.
-1. Review the existing code. You will add code to use the OpenAI SDK to access your model.
+1. No painel **Explorer**, na pasta **transcribe-speech**, selecione o arquivo **transcribe-speech.py** para abri-lo.
+1. Revise o código existente. Você adicionará código para usar o OpenAI SDK para acessar seu modelo.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespace you will need to use the OpenAI SDK:
+1. Na parte superior do arquivo de código, sob as referências de namespace existentes, encontre o comentário **Import namespaces** e adicione o seguinte código para importar o namespace necessário para usar o OpenAI SDK:
 
     ```python
    # import namespaces
@@ -225,7 +225,7 @@ The initial application files you'll need to develop speech applications are pro
    from azure.identity import DefaultAzureCredential, get_bearer_token_provider
     ```
 
-1. In the **main** function, note that code to load the endpoint from the configuration file has already been provided. Then find the comment **Create the Azure OpenAI client**, and add the following code to create a client for the OpenAI API:
+1. Na função **main**, observe que o código para carregar o endpoint do arquivo de configuração já foi fornecido. Em seguida, encontre o comentário **Create the Azure OpenAI client** e adicione o seguinte código para criar um cliente para a API do OpenAI:
 
     ```Python
    # Create the Azure OpenAI client
@@ -240,7 +240,7 @@ The initial application files you'll need to develop speech applications are pro
    )
     ```
 
-1. Find the comment **Call model to transcribe audio file**, and add the following code to submit an audio file to the speech-transcription model generate a transcript.
+1. Encontre o comentário **Call model to transcribe audio file** e adicione o seguinte código para enviar um arquivo de áudio ao modelo de transcrição de fala e gerar uma transcrição.
 
     ```Python
    # Call model to transcribe audio file
@@ -255,31 +255,31 @@ The initial application files you'll need to develop speech applications are pro
         
     ```
 
-1. Save the changes to the code file.
+1. Salve as alterações no arquivo de código.
 
-### Run the application
+### Executar o aplicativo
 
-1. In the terminal pane, use the following command to sign into Azure.
+1. No painel do terminal, use o seguinte comando para entrar no Azure.
 
     ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, apenas usar o comando az login será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro --tenant. Consulte [Entrar no Azure de forma interativa usando o Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, exibindo (e confirmando, se necessário) os detalhes da assinatura que contém seu recurso do Foundry.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```
    python transcribe-speech.py
     ```
 
-1. Observe the output as the code submits the audio file to the model for transcription and displays the results. The code should also play the audio file.
+1. Observe a saída enquanto o código envia o arquivo de áudio para o modelo para transcrição e exibe os resultados. O código também deve reproduzir o arquivo de áudio.
 
-## Clean up
+## Limpar recursos
 
-If you've finished exploring speech-enabled models in Foundry Tools, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.
+Se você terminou de explorar modelos com suporte a fala no Foundry Tools, deverá excluir os recursos que criou neste exercício para evitar custos desnecessários no Azure.
 
-1. Open the [Azure portal](https://portal.azure.com) and view the contents of the resource group where you deployed the resources used in this exercise.
-1. On the toolbar, select **Delete resource group**.
-1. Enter the resource group name and confirm that you want to delete it.
+1. Abra o [Azure portal](https://portal.azure.com) e exiba o conteúdo do grupo de recursos onde você implantou os recursos usados neste exercício.
+1. Na barra de ferramentas, selecione **Delete resource group**.
+1. Insira o nome do grupo de recursos e confirme que deseja excluí-lo.

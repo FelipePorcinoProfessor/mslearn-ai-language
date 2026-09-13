@@ -1,107 +1,107 @@
 ---
 lab:
-    title: 'Analyze text'
-    description: "Use Azure Language in Foundry Tools to analyze text."
+    title: 'Analisar texto'
+    description: "Use Azure Language no Foundry Tools para analisar texto."
     level: 300
     duration: 30
     islab: true
     status: 'released'
 ---
 
-# Analyze Text
+# Analisar texto
 
-**Azure Language in Foundry Tools** supports analysis of text, including language detection, entity recognition, and PII redaction.
+O **Azure Language no Foundry Tools** oferece suporte à análise de texto, incluindo language detection, entity recognition e PII redaction.
 
-For example, suppose a travel agency wants to process hotel reviews that have been submitted to the company's web site. By using the Azure Language, they can determine the language each review is written in, identify named entities, such as places, landmarks, or people mentioned in the reviews, and redact any personally identifiable information before publishing them on the company's website. In this exercise, you'll use the Azure Language Python SDK for text analytics to implement a simple hotel review application.
+Por exemplo, suponha que uma agência de viagens queira processar avaliações de hotéis enviadas ao site da empresa. Usando o Azure Language, é possível determinar o idioma em que cada avaliação foi escrita, identificar named entities, como locais, pontos de referência ou pessoas mencionadas nas avaliações, e redigir qualquer personally identifiable information (PII) antes de publicá-las no site da empresa. Neste exercício, você usará o Azure Language Python SDK for text analytics para implementar um aplicativo simples de avaliação de hotéis.
 
-While this exercise is based on Python, you can develop text analytics applications using multiple language-specific SDKs; including:
+Embora este exercício seja baseado em Python, você pode desenvolver aplicativos de text analytics usando vários SDKs específicos de linguagem; incluindo:
 
-The code used in this exercise is based on the for Microsoft Foundry Tools SDK for Python. You can develop similar solutions using the SDKs for Microsoft .NET, JavaScript, and Java. Refer to [Microsoft Foundry SDK client libraries](https://learn.microsoft.com/azure/ai-foundry/how-to/develop/sdk-overview) for details.
+O código usado neste exercício é baseado no Microsoft Foundry Tools SDK for Python. Você pode desenvolver soluções semelhantes usando os SDKs for Microsoft .NET, JavaScript e Java. Consulte [Microsoft Foundry SDK client libraries](https://learn.microsoft.com/azure/ai-foundry/how-to/develop/sdk-overview) para obter detalhes.
 
-This exercise takes approximately **30** minutes.
+Este exercício leva aproximadamente **30** minutos.
 
-> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+> **Observação**: Algumas das tecnologias usadas neste exercício estão em preview ou em active development. Você pode encontrar comportamentos inesperados, avisos ou erros.
 
-## Prerequisites
+## Pré-requisitos
 
-Before starting this exercise, ensure you have:
+Antes de iniciar este exercício, verifique se você tem:
 
-- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
-- [Visual Studio Code](https://code.visualstudio.com/) installed
-- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
-- [Git](https://git-scm.com/install/) installed and configured
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+- Uma [assinatura do Azure](https://azure.microsoft.com/pricing/purchase-options/azure-account) ativa
+- [Visual Studio Code](https://code.visualstudio.com/) instalado
+- [Python versão **3.13.xx**](https://www.python.org/downloads/release/python-31312/) instalado\*
+- [Git](https://git-scm.com/install/) instalado e configurado
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) instalado
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* O Python 3.14 está disponível, mas algumas dependências ainda não foram compiladas para essa versão. O laboratório foi testado com sucesso com o Python 3.13.12.
 
-## Create a Microsoft Foundry project
+## Criar um projeto do Microsoft Foundry
 
-Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
+O Microsoft Foundry usa projetos para organizar modelos, recursos, dados e outros ativos usados para desenvolver uma solução de IA.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. Em um navegador da Web, abra o [Microsoft Foundry portal](https://ai.azure.com) em `https://ai.azure.com` e entre usando suas credenciais do Azure. Feche quaisquer dicas ou painéis de início rápido que sejam abertos na primeira vez que você entrar e, se necessário, use o logotipo do Foundry no canto superior esquerdo para navegar para a página inicial.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
-    - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*
-    - **Subscription**: *Your Azure subscription*
-    - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any available region
+1. Se ainda não estiver habilitada, na barra de ferramentas na parte superior da página, habilite a opção **New Foundry**. Em seguida, se solicitado, crie um novo projeto com um nome exclusivo; expandindo a área **Advanced options** para especificar as seguintes configurações para o seu projeto:
+    - **Foundry resource**: *Use o nome padrão do seu recurso (geralmente {project_name}-resource)*
+    - **Subscription**: *Sua assinatura do Azure*
+    - **Resource group**: *Crie ou selecione um resource group*
+    - **Region**: Selecione qualquer região disponível
 
-    > **Note**: Use a recommended Microsoft Foundry region. Model availability may vary by region.
+    > **Observação**: Use uma região recomendada do Microsoft Foundry. A disponibilidade de modelos pode variar por região.
 
-1. Select **Create**. Wait for your project to be created.
-1. On the home page for your project, note that the API key, project endpoint, and OpenAI endpoint are displayed here.
+1. Selecione **Create**. Aguarde a criação do seu projeto.
+1. Na página inicial do seu projeto, observe que a API key, o project endpoint e o OpenAI endpoint são exibidos aqui.
 
-    > **TIP**: You're going to need the project endpoint later!
+    > **Dica**: Você vai precisar do project endpoint mais tarde!
 
-## Get the application files from GitHub
+## Obter os arquivos do aplicativo no GitHub
 
-The initial application files you'll need to develop the review analysis application are provided in a GitHub repo.
+Os arquivos iniciais do aplicativo de que você precisa para desenvolver o aplicativo de análise de avaliações são fornecidos em um repositório do GitHub.
 
-1. Open Visual Studio Code.
-1. Open the command palette (*Ctrl+Shift+P*) and use the `Git:clone` command to clone the `https://github.com/microsoftlearning/mslearn-ai-language` repo to a local folder (it doesn't matter which one). Then open it.
+1. Abra o Visual Studio Code.
+1. Abra a Command Palette (*Ctrl+Shift+P*) e use o comando `Git:clone` para clonar o repositório `https://github.com/microsoftlearning/mslearn-ai-language` para uma pasta local (não importa qual). Em seguida, abra-o.
 
-    You may be prompted to confirm you trust the authors.
+    Talvez seja solicitado que você confirme que confia nos autores.
 
-1. After the repo has been cloned, in the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/01-analyze-text/Python/text-analysis**. The application files include:
-    - **reviews** (a subfolder containing the review documents)
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **text-analysis.py** (the code file for the application)
+1. Depois que o repositório for clonado, no painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/01-analyze-text/Python/text-analysis**. Os arquivos do aplicativo incluem:
+    - **reviews** (uma subpasta contendo os documentos de avaliação)
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **text-analysis.py** (o arquivo de código do aplicativo)
 
-## Configure your application
+## Configurar seu aplicativo
 
-1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.13.x installation.
+1. No Visual Studio Code, veja o painel **Extensions**; e, se ainda não estiver instalada, instale a extensão **Python**.
+1. Na **Command Palette**, use o comando `python:select interpreter`. Em seguida, selecione um ambiente existente, se tiver um, ou crie um novo ambiente **Venv** com base na sua instalação do Python 3.13.x.
 
-    > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */Labfiles/01-analyze-text/Python/text-analysis* folder; but it's OK if you don't - we'll install them later!
+    > **Dica**: Se for solicitado a instalar dependências, você pode instalar as do arquivo *requirements.txt* na pasta */Labfiles/01-analyze-text/Python/text-analysis*; mas tudo bem se não instalar agora — nós as instalaremos depois!
 
-    > **Tip**: If you prefer to use the terminal, you can create your **Venv** environment with `python -m venv labenv`, then activate it with `\labenv\Scripts\activate`.
+    > **Dica**: Se preferir usar o terminal, você pode criar seu ambiente **Venv** com `python -m venv labenv` e, em seguida, ativá-lo com `\labenv\Scripts\activate`.
 
-1. In the **Explorer** pane, right-click the **text-analysis** folder containing the application files, and select **Open in integrated terminal** (or open a terminal in the **Terminal** menu and navigate to the */Labfiles/01-analyze-text/Python/text-analysis* folder.)
+1. No painel **Explorer**, clique com o botão direito na pasta **text-analysis** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou abra um terminal no menu **Terminal** e navegue até a pasta */Labfiles/01-analyze-text/Python/text-analysis*.)
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Talvez seja necessário habilitar a execução de scripts no seu sistema.
 
-1. Ensure that the terminal is open in the **text-analysis** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the Azure Language Text Analytics SDK and other required packages by running the following command:
+1. Verifique se o terminal está aberto na pasta **text-analysis** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Instale o Azure Language Text Analytics SDK e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt
     ```
 
-1. In the **Explorer** pane, in the **text-analysis** folder, select the **.env** file to open it. Then update the configuration values to include the **endpoint** (up to the *.com* domain) for your Foundry project (copy these from the Foundry portal).
+1. No painel **Explorer**, na pasta **text-analysis**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para incluir o endpoint (até o domínio *.com*) do seu projeto Foundry (copie-os do portal do Foundry).
 
-    > **Important**: Modify the pasted endpoint to remove the "/api/projects/{project_name}" suffix - the endpoint should be *https://{your-foundry-resource-name}.services.ai.azure.com*.
+    > **Importante**: Modifique o endpoint colado para remover o sufixo "/api/projects/{project_name}" — o endpoint deve ser *https://{your-foundry-resource-name}.services.ai.azure.com*.
 
-    Save the modified configuration file.
+    Salve o arquivo de configuração modificado.
 
-## Add code to connect to your Azure AI Language resource
+## Adicionar código para se conectar ao seu recurso Azure AI Language
 
-1. In the **Explorer** pane, in the **text-analysis** folder,  open the **text-analysis.py** file.
-1. Review the existing code. You will add code to work with the Azure Language Text Analytics SDK.
+1. No painel **Explorer**, na pasta **text-analysis**, abra o arquivo **text-analysis.py**.
+1. Revise o código existente. Você adicionará código para trabalhar com o Azure Language Text Analytics SDK.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespaces you will need to use the Text Analytics SDK:
+1. Na parte superior do arquivo de código, sob as referências de namespace existentes, localize o comentário **Import namespaces** e adicione o seguinte código para importar os namespaces que você precisará para usar o Text Analytics SDK:
 
     ```python
    # import namespaces
@@ -109,7 +109,7 @@ The initial application files you'll need to develop the review analysis applica
    from azure.ai.textanalytics import TextAnalyticsClient
     ```
 
-1. In the **main** function, note that code to load the endpoint from the configuration file has already been provided. Then find the comment **Create client using endpoint**, and add the following code to create a client for the Text Analysis API:
+1. Na função **main**, observe que já foi fornecido o código para carregar o endpoint do arquivo de configuração. Em seguida, localize o comentário **Create client using endpoint** e adicione o seguinte código para criar um client para a Text Analysis API:
 
     ```Python
    # Create client using endpoint
@@ -117,28 +117,28 @@ The initial application files you'll need to develop the review analysis applica
    ai_client = TextAnalyticsClient(endpoint=foundry_endpoint, credential=credential)
     ```
 
-1. Save the changes to the code file. Then, in the terminal pane, use the following command to sign into Azure.
+1. Salve as alterações no arquivo de código. Em seguida, no painel do terminal, use o seguinte comando para entrar no Azure.
 
     ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, usar apenas *az login* será suficiente. No entanto, se você tiver assinaturas em vários tenants, talvez seja necessário especificar o tenant usando o parâmetro *--tenant*. Consulte [Entrar no Azure de forma interativa usando o Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, visualizando (e confirmando, se necessário) os detalhes da assinatura que contém seu recurso Foundry.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```
    python text-analysis.py
     ```
 
-1. Observe the output as the code should run without error, displaying the contents of each review text file in the **reviews** folder. The application successfully creates a client for the Text Analytics API but doesn't make use of it. We'll fix that in the next section.
+1. Observe a saída, pois o código deve ser executado sem erro, exibindo o conteúdo de cada arquivo de texto de avaliação na pasta **reviews**. O aplicativo cria com sucesso um client para a Text Analytics API, mas ainda não o utiliza. Vamos corrigir isso na próxima seção.
 
-## Add code to detect language
+## Adicionar código para detectar idioma
 
-Now that you have created a client for the API, let's use it to detect the language in which each review is written.
+Agora que você criou um client para a API, vamos usá-lo para detectar o idioma em que cada avaliação foi escrita.
 
-1. In the code editor, find the comment **Get language**. Then add the code necessary to detect the language in each review document:
+1. No editor de código, localize o comentário **Get language**. Em seguida, adicione o código necessário para detectar o idioma em cada documento de avaliação:
 
     ```python
    # Get language
@@ -146,16 +146,16 @@ Now that you have created a client for the API, let's use it to detect the langu
    print('\nLanguage: {}'.format(detectedLanguage.primary_language.name))
     ```
 
-     > **Note**: *In this example, each review is analyzed individually, resulting in a separate call to the service for each file. An alternative approach is to create a collection of documents and pass them to the service in a single call. In both approaches, the response from the service consists of a collection of documents; which is why in the Python code above, the index of the first (and only) document in the response ([0]) is specified.*
+     > **Observação**: *Neste exemplo, cada avaliação é analisada individualmente, resultando em uma chamada separada ao serviço para cada arquivo. Uma abordagem alternativa é criar uma coleção de documentos e passá-los ao serviço em uma única chamada. Em ambas as abordagens, a response do serviço consiste em uma coleção de documentos; por isso, no código Python acima, o índice do primeiro (e único) documento na response ([0]) é especificado.*
 
-1. Save your changes. Then re-run the program.
-1. Observe the output, noting that this time the language for each review is identified.
+1. Salve suas alterações. Em seguida, execute o programa novamente.
+1. Observe a saída, observando que desta vez o idioma de cada avaliação é identificado.
 
-## Add code to extract entities
+## Adicionar código para extrair entities
 
-Often, documents or other bodies of text mention people, places, time periods, or other entities. The text Analytics API can detect multiple categories (and subcategories) of entity in your text.
+Com frequência, documentos ou outros corpos de texto mencionam pessoas, lugares, períodos de tempo ou outras entities. A Text Analytics API pode detectar várias categorias (e subcategorias) de entity no seu texto.
 
-1. In the code editor, find the comment **Get entities**. Then, add the code necessary to identify entities that are mentioned in each review:
+1. No editor de código, localize o comentário **Get entities**. Em seguida, adicione o código necessário para identificar as entities mencionadas em cada avaliação:
 
     ```python
    # Get entities
@@ -166,14 +166,14 @@ Often, documents or other bodies of text mention people, places, time periods, o
             print('\t{} ({})'.format(entity.text, entity.category))
     ```
 
-1. Save your changes and re-run the program.
-1. Observe the output, noting the entities that have been detected in the text.
+1. Salve suas alterações e execute o programa novamente.
+1. Observe a saída, observando as entities que foram detectadas no texto.
 
-## Add code to redact PII
+## Adicionar código para PII redaction
 
-Often, privacy policies and legislation can require that personally identifiable information (PII). such as names, addresses, phone numbers, and other private details be redacted from documents.
+Com frequência, políticas de privacidade e legislações podem exigir que personally identifiable information (PII), como nomes, endereços, números de telefone e outros detalhes privados, seja redigida dos documentos.
 
-1. In the code editor, find the comment **Get PII**. Then, add the code necessary to identify PII entities that are mentioned in each review:
+1. No editor de código, localize o comentário **Get PII**. Em seguida, adicione o código necessário para identificar entities de PII mencionadas em cada avaliação:
 
     ```python
    # Get PII
@@ -186,13 +186,13 @@ Often, privacy policies and legislation can require that personally identifiable
         print("Redacted Text:\n {}".format(pii_result.redacted_text))
     ```
 
-1. Save your changes and re-run the program.
-1. Observe the output, noting the PII entities that are identified, and reviewing the redacted version of each document that is produced.
+1. Salve suas alterações e execute o programa novamente.
+1. Observe a saída, observando as PII entities que são identificadas e revisando a versão redigida de cada documento que é produzida.
 
-## Clean up
+## Limpar
 
-If you've finished exploring Azure Language in Foundry Tools, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.
+Se você terminou de explorar o Azure Language no Foundry Tools, deverá excluir os recursos que criou neste exercício para evitar incorrer em custos desnecessários do Azure.
 
-1. Open the [Azure portal](https://portal.azure.com) and view the contents of the resource group where you deployed the resources used in this exercise.
-1. On the toolbar, select **Delete resource group**.
-1. Enter the resource group name and confirm that you want to delete it.
+1. Abra o [Azure portal](https://portal.azure.com) e visualize o conteúdo do resource group onde você implantou os recursos usados neste exercício.
+1. Na barra de ferramentas, selecione **Delete resource group**.
+1. Insira o nome do resource group e confirme que deseja excluí-lo.

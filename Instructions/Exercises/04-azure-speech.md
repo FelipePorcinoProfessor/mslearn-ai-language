@@ -1,111 +1,111 @@
 ---
 lab:
-    title: 'Recognize and synthesize speech'
-    description: Implement speech functionality using Azure Speech in Foundry Tools.
+    title: 'Reconhecer e sintetizar fala'
+    description: Implementar funcionalidade de fala usando Azure Speech in Foundry Tools.
     duration: 30
     level: 300
     islab: true
     status: 'released'
 ---
 
-# Recognize and synthesize speech
+# Reconhecer e sintetizar fala
 
-**Azure Speech in Foundry Tools** is a service that provides speech-related functionality, including:
+**Azure Speech in Foundry Tools** é um serviço que fornece funcionalidades relacionadas a fala, incluindo:
 
-- A *speech-to-text* API that enables you to implement speech recognition (converting audible spoken words into text).
-- A *text-to-speech* API that enables you to implement speech synthesis (converting text into audible speech).
+- Uma API de *speech-to-text* que permite implementar reconhecimento de fala (convertendo palavras faladas audíveis em texto).
+- Uma API de *text-to-speech* que permite implementar síntese de fala (convertendo texto em fala audível).
 
-In this exercise, you'll use both of these APIs to implement a voice message assistant.
+Neste exercício, você usará ambas as APIs para implementar um assistente de mensagens de voz.
 
-While this exercise is based on Python, you can develop speech applications using multiple language-specific SDKs; including:
+Embora este exercício seja baseado em Python, você pode desenvolver aplicativos de fala usando vários SDKs específicos de linguagem, incluindo:
 
 - [Azure Speech SDK for Python](https://pypi.org/project/azure-cognitiveservices-speech/)
 - [Azure Speech SDK for .NET](https://www.nuget.org/packages/Microsoft.CognitiveServices.Speech)
 - [Azure Speech SDK for JavaScript](https://www.npmjs.com/package/microsoft-cognitiveservices-speech-sdk)
 
-This exercise takes approximately **30** minutes.
+Este exercício leva aproximadamente **30** minutos.
 
-> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+> **Observação**: Algumas das tecnologias usadas neste exercício estão em prévia ou em desenvolvimento ativo. Você pode experimentar comportamentos inesperados, avisos ou erros.
 
-## Prerequisites
+## Pré-requisitos
 
-Before starting this exercise, ensure you have:
+Antes de começar este exercício, verifique se você tem:
 
-- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
-- [Visual Studio Code](https://code.visualstudio.com/) installed
-- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
-- [Git](https://git-scm.com/install/) installed and configured
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+- Uma [assinatura do Azure](https://azure.microsoft.com/pricing/purchase-options/azure-account) ativa
+- [Visual Studio Code](https://code.visualstudio.com/) instalado
+- [Python versão **3.13.xx**](https://www.python.org/downloads/release/python-31312/) instalado\*
+- [Git](https://git-scm.com/install/) instalado e configurado
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) instalado
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* O Python 3.14 está disponível, mas algumas dependências ainda não foram compiladas para essa versão. O laboratório foi testado com sucesso com Python 3.13.12.
 
-## Create a Microsoft Foundry project
+## Criar um projeto do Microsoft Foundry
 
-Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
+O Microsoft Foundry usa projetos para organizar modelos, recursos, dados e outros ativos usados para desenvolver uma solução de IA.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. Em um navegador da Web, abra o [portal do Microsoft Foundry](https://ai.azure.com) em `https://ai.azure.com` e entre com suas credenciais do Azure. Feche quaisquer dicas ou painéis de início rápido que sejam abertos na primeira vez que você entrar e, se necessário, use o logotipo do Foundry no canto superior esquerdo para navegar para a página inicial.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
+1. Se ainda não estiver habilitada, na barra de ferramentas na parte superior da página, habilite a opção **New Foundry**. Em seguida, se for solicitado, crie um novo projeto com um nome exclusivo; expandindo a área **Advanced options** para especificar as seguintes configurações para o seu projeto:
     - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*\*
     - **Subscription**: *Your Azure subscription*
     - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any available region
+    - **Region**: Selecione qualquer região disponível
 
-    > **Note**: Use a recommended Microsoft Foundry region. Model availability may vary by region.
+    > **Observação**: Use uma região recomendada do Microsoft Foundry. A disponibilidade de modelos pode variar por região.
 
-    > **TIP**: \* Remember the Foundry resource name - you'll need it later!
+    > **Dica**: \* Lembre-se do nome do Foundry resource - você precisará dele mais tarde!
 
-1. Wait for your project to be created. Then view the home page for your project.
+1. Aguarde a criação do seu projeto. Em seguida, visualize a página inicial do seu projeto.
 
-## Get the application files from GitHub
+## Obter os arquivos do aplicativo no GitHub
 
-The initial application files you'll need to develop the voice application are provided in a GitHub repo.
+Os arquivos iniciais do aplicativo necessários para desenvolver o aplicativo de voz são fornecidos em um repositório do GitHub.
 
-1. Open Visual Studio Code.
-1. Open the command palette (*Ctrl+Shift+P*) and use the `Git:clone` command to clone the `https://github.com/microsoftlearning/mslearn-ai-language` repo to a local folder (it doesn't matter which one). Then open it.
+1. Abra o Visual Studio Code.
+1. Abra a paleta de comandos (Ctrl+Shift+P) e use o comando `Git:clone` para clonar o repositório `https://github.com/microsoftlearning/mslearn-ai-language` para uma pasta local (não importa qual). Em seguida, abra-o.
 
-    You may be prompted to confirm you trust the authors.
+    Pode ser solicitado que você confirme que confia nos autores.
 
-1. After the repo has been cloned, in the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/04-azure-speech/Python/voice-mail**. The application files include:
-    - **messages** (a subfolder containing audio recordings of messages)
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **voice-mail.py** (the code file for the application)
+1. Após a clonagem do repositório, no painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/04-azure-speech/Python/voice-mail**. Os arquivos do aplicativo incluem:
+    - **messages** (uma subpasta contendo gravações de áudio de mensagens)
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **voice-mail.py** (o arquivo de código do aplicativo)
 
-## Configure your application
+## Configurar seu aplicativo
 
-1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.1x installation.
+1. No Visual Studio Code, visualize o painel **Extensions**; e, se ainda não estiver instalada, instale a extensão **Python**.
+1. Na **Command Palette**, use o comando `python:select interpreter`. Em seguida, selecione um ambiente existente se você tiver um, ou crie um novo ambiente **Venv** baseado na sua instalação do Python 3.1x.
 
-    > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */Labfiles/04-azure-speech/Python/voice-mail* folder; but it's OK if you don't - we'll install them later!
+    > **Dica**: Se for solicitado que você instale dependências, você pode instalar as do arquivo *requirements.txt* na pasta */Labfiles/04-azure-speech/Python/voice-mail*; mas tudo bem se você não o fizer — vamos instalá-las mais tarde!
 
-    > **Tip**: If you prefer to use the terminal, you can create your **Venv** environment with `python -m venv labenv`, then activate it with `\labenv\Scripts\activate`.
+    > **Dica**: Se preferir usar o terminal, você pode criar seu ambiente **Venv** com `python -m venv labenv`, depois ativá-lo com `\labenv\Scripts\activate`.
 
-1. In the **Explorer** pane, right-click the **voice-mail** folder containing the application files, and select **Open in integrated terminal** (or open a terminal in the **Terminal** menu and navigate to the */Labfiles/04-azure-speech/Python/voice-mail* folder.)
+1. No painel **Explorer**, clique com o botão direito na pasta **voice-mail** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou abra um terminal no menu **Terminal** e navegue até a pasta */Labfiles/04-azure-speech/Python/voice-mail*.)
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Talvez seja necessário habilitar a execução de scripts no seu sistema.
 
-1. Ensure that the terminal is open in the **voice-mail** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the Azure AI Speech SDK package and other required packages by running the following command:
+1. Verifique se o terminal está aberto na pasta **voice-mail** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Instale o pacote Azure AI Speech SDK e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt
     ```
 
-1. In the **Explorer** pane, in the **voice-mail** folder, select the **.env** file to open it. Then update the configuration values to reflect the Cognitive Services **endpoint** for your Foundry resource.
+1. No painel **Explorer**, na pasta **voice-mail**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para refletir o **endpoint** do Cognitive Services para o seu Foundry resource.
 
-    > **Important**: The endpoint should be *https://{YOUR_FOUNDRY_RESOURCE}.cognitiveservices.azure.com/*. The Foundry Resource name usually takes the form *{project_name}-resource*.
+    > **Importante**: O endpoint deve ser *https://{YOUR_FOUNDRY_RESOURCE}.cognitiveservices.azure.com/*. O nome do Foundry Resource geralmente tem o formato *{project_name}-resource*.
 
-    Save the modified configuration file.
+    Salve o arquivo de configuração modificado.
 
-## Add code to synthesize speech
+## Adicionar código para sintetizar fala
 
-1. In the **Explorer** pane, in the **voice-mail** folder,  open the **voice-mail.py** file.
-1. Review the existing code. You will add code to work with the Azure Speech SDK.
+1. No painel **Explorer**, na pasta **voice-mail**, abra o arquivo **voice-mail.py**.
+1. Revise o código existente. Você adicionará código para trabalhar com o Azure Speech SDK.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespaces you will need to use the Speech SDK:
+1. No topo do arquivo de código, sob as referências de namespace existentes, localize o comentário **Import namespaces** e adicione o seguinte código para importar os namespaces que você precisará para usar o Speech SDK:
 
     ```python
    # import namespaces
@@ -113,7 +113,7 @@ The initial application files you'll need to develop the voice application are p
    import azure.cognitiveservices.speech as speech_sdk
     ```
 
-1. In the **main** function, note that code to load the endpoint from the configuration file has already been provided. Then find the comment **Create speech_config using Entra ID authentication**, and add the following code to create a Speech Configuration object:
+1. Na função **main**, observe que o código para carregar o endpoint do arquivo de configuração já foi fornecido. Em seguida, localize o comentário **Create speech_config using Entra ID authentication** e adicione o seguinte código para criar um objeto Speech Configuration:
 
     ```Python
    # Create speech_config using Entra ID authentication
@@ -123,13 +123,13 @@ The initial application files you'll need to develop the voice application are p
         endpoint=foundry_endpoint)
     ```
 
-1. Review the rest of the **main** function, and note that a loop has been implemented that enables the user to choose one of three options:
-    1. Record a voice greeting
-    1. Transcribe messages
-    1. Exit the application
+1. Revise o restante da função **main** e observe que foi implementado um loop que permite ao usuário escolher uma de três opções:
+    1. Gravar uma saudação de voz
+    1. Transcrever mensagens
+    1. Sair do aplicativo
 
-1. Find the **record_greeting** function, which you will implement to record a voice greeting as an audio file.
-1. In the **record_greeting** function, find the comment **Synthesize the greeting message to an audio file**, and add the following code to synthesize speech from the text entered by the user and save it as an audio file.
+1. Localize a função **record_greeting**, que você implementará para gravar uma saudação de voz como um arquivo de áudio.
+1. Na função **record_greeting**, localize o comentário **Synthesize the greeting message to an audio file** e adicione o seguinte código para sintetizar fala a partir do texto inserido pelo usuário e salvá-la como um arquivo de áudio.
 
     ```python
    output_file = "greeting.wav"
@@ -151,34 +151,34 @@ The initial application files you'll need to develop the voice application are p
         print("Error recording greeting: {}".format(result.reason))
     ```
 
-1. Save the changes to the code file. Then, in the terminal pane, use the following command to sign into Azure.
+1. Salve as alterações no arquivo de código. Em seguida, no painel do terminal, use o seguinte comando para entrar no Azure.
 
     ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, usar apenas o comando az login será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro *--tenant*. Consulte [Entrar no Azure interativamente usando o Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, visualizando (e confirmando, se necessário) os detalhes da assinatura que contém seu Foundry resource.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```powershell
    python voice-mail.py
     ```
 
-1. When prompted, enter **1** to record a greeting.
-1. Enter a greeting, like `Hi. The person you called is not available right now. Leave a message.`
-1. Wait while the speech is synthesized and saved as an audio file.
+1. Quando solicitado, insira **1** para gravar uma saudação.
+1. Insira uma saudação, como `Hi. The person you called is not available right now. Leave a message.`
+1. Aguarde enquanto a fala é sintetizada e salva como um arquivo de áudio.
 
-    You can select the *greeting.wav* file that is generated in the voice-mail folder to play it in Visual Studio Code.
+    Você pode selecionar o arquivo *greeting.wav* que é gerado na pasta voice-mail para reproduzi-lo no Visual Studio Code.
 
-## Add code to recognize speech
+## Adicionar código para reconhecer fala
 
-1. In the **voice-mail.py** code file, find the **transcribe_messages** function; which you will implement to transcribe each of the voice messages in the **messages** subfolder.
+1. No arquivo de código **voice-mail.py**, localize a função **transcribe_messages**, que você implementará para transcrever cada uma das mensagens de voz na subpasta **messages**.
 
-    The functional already contains code to loop through the files in the **messages** folder.
+    A função já contém código para percorrer os arquivos na pasta **messages**.
 
-1. In the **transcribe_messages** function, find the comment **Transcribe the audio file**, and add the following code to transcribe the audio.
+1. Na função **transcribe_messages**, localize o comentário **Transcribe the audio file** e adicione o seguinte código para transcrever o áudio.
 
     ```python
    # Transcribe the audio file
@@ -194,25 +194,25 @@ The initial application files you'll need to develop the voice application are p
         print("Error transcribing message: {}".format(result.reason))
     ```
 
-1. Save the changes to the code file. Then, in the terminal, enter the following command to run the application:
+1. Salve as alterações no arquivo de código. Em seguida, no terminal, insira o seguinte comando para executar o aplicativo:
 
     ```powershell
    python voice-mail.py
     ```
 
-1. When prompted, enter **2** to transcribe messages.
-1. View the transcription for each message.
+1. Quando solicitado, insira **2** para transcrever mensagens.
+1. Veja a transcrição de cada mensagem.
 
-    Each file is played back automatically, so you can hear the message.
+    Cada arquivo é reproduzido automaticamente, para que você possa ouvir a mensagem.
 
-## Clean up
+## Limpar
 
-If you've finished exploring Azure Speech in Foundry Tools, you should delete the resources you have created in this exercise to avoid incurring unnecessary Azure costs.
+Se você terminou de explorar o Azure Speech in Foundry Tools, deve excluir os recursos que criou neste exercício para evitar custos desnecessários no Azure.
 
-1. Open the [Azure portal](https://portal.azure.com) and view the contents of the resource group where you deployed the resources used in this exercise.
-1. On the toolbar, select **Delete resource group**.
-1. Enter the resource group name and confirm that you want to delete it.
+1. Abra o [portal do Azure](https://portal.azure.com) e visualize o conteúdo do grupo de recursos onde você implantou os recursos usados neste exercício.
+1. Na barra de ferramentas, selecione **Delete resource group**.
+1. Insira o nome do grupo de recursos e confirme que deseja excluí-lo.
 
-## More information
+## Mais informações
 
-For more information about using the **Speech-to-text** and **Text-to-speech** APIs, see the [Speech-to-text documentation](https://learn.microsoft.com/azure/ai-services/speech-service/index-speech-to-text) and [Text-to-speech documentation](https://learn.microsoft.com/azure/ai-services/speech-service/index-text-to-speech).
+Para obter mais informações sobre o uso das APIs **Speech-to-text** e **Text-to-speech**, consulte a [documentação do Speech-to-text](https://learn.microsoft.com/azure/ai-services/speech-service/index-speech-to-text) e a [documentação do Text-to-speech](https://learn.microsoft.com/azure/ai-services/speech-service/index-text-to-speech).

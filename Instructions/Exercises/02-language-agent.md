@@ -1,116 +1,116 @@
 ---
 lab:
-    title: 'Develop a text analysis agent'
-    description: 'Use Azure Language in Foundry Tools to add text analysis capabilities to an AI agent.'
+    title: 'Desenvolver um agente de análise de texto'
+    description: 'Use Azure Language in Foundry Tools para adicionar recursos de análise de texto a um agente de IA.'
     duration: 30
     level: 300
     islab: true
     status: 'released'
 ---
 
-# Develop a text analysis agent
+# Desenvolver um agente de análise de texto
 
-**Azure Language in Foundry Tools** supports analysis of text, including language detection, entity recognition, and PII redaction.
+O **Azure Language in Foundry Tools** dá suporte à análise de texto, incluindo detecção de idioma, reconhecimento de entidades e redação de PII.
 
-You can use the service directly in an application through its REST API and several language-specific SDKs. You can also use the **Azure Language in Foundry Tools MCP server** to integrate its capabilities into an AI agent, which is what you'll do in this exercise.
+Você pode usar o serviço diretamente em um aplicativo por meio de sua REST API e de vários SDKs específicos de linguagem. Você também pode usar o **Azure Language in Foundry Tools MCP server** para integrar seus recursos a um agente de IA, que é o que você fará neste exercício.
 
-The code used in this exercise is based on the Microsoft Foundry SDK for Python. You can develop similar solutions using the SDKs for Microsoft .NET, JavaScript, and Java. Refer to [Microsoft Foundry SDK client libraries](https://learn.microsoft.com/azure/ai-foundry/how-to/develop/sdk-overview) for details.
+O código usado neste exercício é baseado no Microsoft Foundry SDK for Python. Você pode desenvolver soluções semelhantes usando os SDKs para Microsoft .NET, JavaScript e Java. Consulte [Microsoft Foundry SDK client libraries](https://learn.microsoft.com/azure/ai-foundry/how-to/develop/sdk-overview) para obter detalhes.
 
-This exercise takes approximately **30** minutes.
+Este exercício leva aproximadamente **30** minutos.
 
-> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+> **Observação**: Algumas das tecnologias usadas neste exercício estão em versão prévia ou em desenvolvimento ativo. Você pode experimentar algum comportamento inesperado, avisos ou erros.
 
-## Prerequisites
+## Pré-requisitos
 
-Before starting this exercise, ensure you have:
+Antes de iniciar este exercício, verifique se você tem:
 
-- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
-- [Visual Studio Code](https://code.visualstudio.com/) installed
-- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
-- [Git](https://git-scm.com/install/) installed and configured
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+- Uma [assinatura do Azure](https://azure.microsoft.com/pricing/purchase-options/azure-account) ativa
+- [Visual Studio Code](https://code.visualstudio.com/) instalado
+- [Python versão **3.13.xx**](https://www.python.org/downloads/release/python-31312/) instalado\*
+- [Git](https://git-scm.com/install/) instalado e configurado
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) instalada
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* O Python 3.14 está disponível, mas algumas dependências ainda não foram compiladas para essa versão. O laboratório foi testado com êxito com Python 3.13.12.
 
-## Create a Microsoft Foundry project
+## Criar um projeto do Microsoft Foundry
 
-Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
+O Microsoft Foundry usa projetos para organizar modelos, recursos, dados e outros ativos usados para desenvolver uma solução de IA.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. Em um navegador da Web, abra o [Microsoft Foundry portal](https://ai.azure.com) em `https://ai.azure.com` e entre usando suas credenciais do Azure. Feche quaisquer dicas ou painéis de início rápido que sejam abertos na primeira vez em que você entrar e, se necessário, use o logotipo do Foundry no canto superior esquerdo para navegar até a home page.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
-    - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*
-    - **Subscription**: *Your Azure subscription*
-    - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any available region
+1. Se ainda não estiver habilitada, na barra de ferramentas na parte superior da página, habilite a opção **New Foundry**. Em seguida, se for solicitado, crie um novo projeto com um nome exclusivo; expandindo a área **Advanced options** para especificar as seguintes configurações para o seu projeto:
+    - **Foundry resource**: Use o nome padrão para o seu recurso (geralmente {project_name}-resource)
+    - **Subscription**: Sua assinatura do Azure
+    - **Resource group**: Crie ou selecione um grupo de recursos
+    - **Region**: Selecione qualquer região disponível
 
-    > **Note**: Use a recommended Microsoft Foundry region. Model availability may vary by region.
+    > **Observação**: Use uma região recomendada do Microsoft Foundry. A disponibilidade de modelos pode variar por região.
 
-    > **TIP**: Remember (or make a note of) the Foundry resource name - you're going to need it later!
+    > **Dica**: Lembre-se (ou anote) o nome do Foundry resource — você vai precisar dele mais tarde!
 
-1. Select **Create**. Wait for your project to be created.
-1. On the home page for your project, note that the API key, project endpoint, and OpenAI endpoint are displayed here.
+1. Selecione **Create**. Aguarde a criação do seu projeto.
+1. Na home page do seu projeto, observe que a API key, o project endpoint e o OpenAI endpoint são exibidos aqui.
 
-    > **TIP**: Copy the project key to the clipboard - you're going to need it later!
+    > **Dica**: Copie a project key para a área de transferência — você vai precisar dela mais tarde!
 
-## Create an agent
+## Criar um agente
 
-Now that you have a Foundry project, you can create an agent.
+Agora que você tem um projeto do Foundry, pode criar um agente.
 
-1. Now you're ready to **Start building**. Select **Create agents** (or on the **Build** page, select the **Agents** tab); and create a new agent named `Text-Analysis-Agent`.
+1. Agora você está pronto para **Start building**. Selecione **Create agents** (ou na página **Build**, selecione a guia **Agents**); e crie um novo agente chamado `Text-Analysis-Agent`.
 
-    When ready, your agent opens in the agent playground.
+    Quando estiver pronto, seu agente será aberto no playground do agente.
 
-1. In the model drop-down list, ensure that a **gpt-5** model has been deployed and selected for your agent.
-1. Assign your agent the following **Instructions**:
+1. Na lista suspensa de modelos, verifique se um modelo **gpt-5** foi implantado e selecionado para o seu agente.
+1. Atribua as seguintes **Instructions** ao seu agente:
 
     ```
    You are an AI agent that assists users by helping them analyze text.
     ```
 
-1. Use the **Save** button to save the changes.
-1. Test the agent by entering the following prompt in the **Chat** pane:
+1. Use o botão **Save** para salvar as alterações.
+1. Teste o agente inserindo o seguinte prompt no painel **Chat**:
 
     ```
    What can you help me with?
     ```
 
-    The agent should respond with an appropriate answer based on its instructions.
+    O agente deve responder com uma resposta apropriada com base em suas instruções.
 
-## Create an Azure Language in Foundry Tools connection
+## Criar uma conexão do Azure Language in Foundry Tools
 
-Foundry includes an MCP server for Azure Language in Foundry Tools, which you can connect to your project and use in your agent.
+O Foundry inclui um MCP server para o Azure Language in Foundry Tools, que você pode conectar ao seu projeto e usar no seu agente.
 
-1. In the navigation pane on the left, select the **Tools** page.
-1. Within the Tools page select the **Tools** tab.
-1. Connect a tool; selecting **Azure Language in Foundry Tools** in the **Catalog** and connecting it to an endpoint. specifying the following configuration
-    - **Name**: A unique name for your tool/
+1. No painel de navegação à esquerda, selecione a página **Tools**.
+1. Dentro da página Tools, selecione a guia **Tools**.
+1. Conecte uma ferramenta; selecionando **Azure Language in Foundry Tools** no **Catalog** e conectando-a a um endpoint, especificando a seguinte configuração
+    - **Name**: Um nome exclusivo para sua ferramenta
     - **Remote MCP Server endpoint**: `https://{foundry-resource-name}.cognitiveservices.azure.com/language/mcp?api-version=2025-11-15-preview`
-    - **Parameters**: foundry-resource-name: *Your foundry resource name*
+    - **Parameters**: foundry-resource-name: Seu foundry resource name
     - **Authentication**: Key-based:
-    - **Ocp-Apim-Subscription-Key**: *API Key for your Foundry project*
+    - **Ocp-Apim-Subscription-Key**: API Key para o seu projeto do Foundry
 
-    > **Note**: If key-based authentication is disabled by a policy in your Azure subscription, you can use Entra ID authentication to connect the agent to the Azure Language service.
+    > **Observação**: Se a autenticação baseada em chave estiver desabilitada por uma política na sua assinatura do Azure, você pode usar a autenticação do Entra ID para conectar o agente ao serviço Azure Language.
 
-1. Wait for the MCP tool connection to be created, and then view its details page.
-1. On the details page for the Azure Language in Foundry Tools connection, select **Use in an agent**, and then select the **Text-Analysis-Agent** agent you created previously.
+1. Aguarde a criação da conexão da ferramenta MCP e, em seguida, veja a página de detalhes dela.
+1. Na página de detalhes da conexão do Azure Language in Foundry Tools, selecione **Use in an agent** e, em seguida, selecione o agente **Text-Analysis-Agent** que você criou anteriormente.
 
-    The agent should open in the playground, with the Azure Language in Foundry Tools tool connected.
+    O agente deve ser aberto no playground, com a ferramenta Azure Language in Foundry Tools conectada.
 
-    > **Note**: In some cases, the MCP tool is not added to the agent automatically. Verify that **Azure Language in Foundry Tools** appears in the agent's tool list. If it does not, add it manually from the available tools for the agent.
+    > **Observação**: Em alguns casos, a ferramenta MCP não é adicionada ao agente automaticamente. Verifique se **Azure Language in Foundry Tools** aparece na lista de ferramentas do agente. Se não aparecer, adicione-a manualmente a partir das ferramentas disponíveis para o agente.
 
-## Test the Azure Language tool in the playground
+## Testar a ferramenta Azure Language no playground
 
-Now let's test the agent's ability to use the tool you connected.
+Agora vamos testar a capacidade do agente de usar a ferramenta que você conectou.
 
-1. In the agent playground for the **Text-Analysis-Agent** agent, modify the instructions as follows:
+1. No playground do agente para o agente **Text-Analysis-Agent**, modifique as instruções da seguinte forma:
 
     ```
    You are an AI agent that assists users by helping them analyze text. Use the Azure Language tool to perform text analysis tasks.
     ```
 
-1. Use the **Save** button to save the changes.
-1. Test the agent by entering the following prompt in the **Chat** pane:
+1. Use o botão **Save** para salvar as alterações.
+1. Teste o agente inserindo o seguinte prompt no painel **Chat**:
 
     ```
     Identify the PII entities in this article, and generate a redacted version:
@@ -120,68 +120,68 @@ Now let's test the agent's ability to use the tool you connected.
     In the late 1970s, Microsoft grew by supplying programming languages to multiple hardware vendors, then relocated to the Seattle area in 1979. A pivotal moment came in 1980 when Microsoft partnered with IBM to provide an operating system for the IBM PC, leading to MS‑DOS and establishing the company’s dominance in personal computing. Gates guided the company’s long-term strategy as CEO, while Allen contributed key technical vision in its early years, setting Microsoft on a path that would reshape the software industry.
     ```
 
-1. When prompted, approve use of the Azure Language tool by selecting **Always approve all Azure Language in Foundry Tools tools** (you may need to do this twice because the prompt asked for two distinct text analysis tasks).
+1. Quando solicitado, aprove o uso da ferramenta Azure Language selecionando **Always approve all Azure Language in Foundry Tools tools** (talvez você precise fazer isso duas vezes porque o prompt solicitou duas tarefas de análise de texto distintas).
 
-    > **Note**: Depending on your environment, you may occasionally receive a 403, 502, or other transient error after approving the tool. These errors are usually not blocking. Refresh the page and retry the same prompt.
+    > **Observação**: Dependendo do seu ambiente, ocasionalmente você pode receber um erro transitório 403, 502 ou outro após aprovar a ferramenta. Esses erros geralmente não são bloqueadores. Atualize a página e tente o mesmo prompt novamente.
 
-1. Review the response, which should identify any personally identifiable information in the article about the founding of Microsoft, and create a version of the article with this information redacted.
-1. Review the **Logs** for the chat and verify that the Azure Language tool was used by the agent to process the prompt.
+1. Revise a resposta, que deve identificar quaisquer informações de identificação pessoal no artigo sobre a fundação da Microsoft e criar uma versão do artigo com essas informações redigidas.
+1. Revise os **Logs** do chat e verifique se a ferramenta Azure Language foi usada pelo agente para processar o prompt.
 
-## Configure tool approval
+## Configurar a aprovação da ferramenta
 
-As you've seen in the playground, to use the tool, the agent needs approval.
+Como você viu no playground, para usar a ferramenta, o agente precisa de aprovação.
 
-1. In the playground, in the list of **Tools** under the **Instructions**, in the menu for the Azure language tool you added, select **Configure**.
-1. Ensure that the **Approval setting for tools in this MCP server for this agent** setting is **Always auto-approve all tools** (if not, change it and add it).
-1. Save any changes to the agent.
+1. No playground, na lista de **Tools** sob **Instructions**, no menu da ferramenta Azure Language que você adicionou, selecione **Configure**.
+1. Verifique se a configuração **Approval setting for tools in this MCP server for this agent** está como **Always auto-approve all tools** (se não estiver, altere e adicione).
+1. Salve quaisquer alterações no agente.
 
-## Create a client application
+## Criar um aplicativo cliente
 
-Now that you have a working agent, you can create a client application that uses it.
+Agora que você tem um agente funcional, pode criar um aplicativo cliente que o use.
 
-### Get the application files from GitHub
+### Obter os arquivos do aplicativo no GitHub
 
-1. Open Visual Studio Code.
-1. Open the command palette (*Ctrl+Shift+P*) and use the `Git:clone` command to clone the `https://github.com/microsoftlearning/mslearn-ai-language` repo to a local folder (it doesn't matter which one). Then open it.
+1. Abra o Visual Studio Code.
+1. Abra a paleta de comandos (Ctrl+Shift+P) e use o comando `Git:clone` para clonar o repositório `https://github.com/microsoftlearning/mslearn-ai-language` para uma pasta local (não importa qual). Em seguida, abra-o.
 
-    You may be prompted to confirm you trust the authors.
+    Talvez seja solicitado que você confirme que confia nos autores.
 
-1. After the repo has been cloned, in the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/02-language-agent/Python/text-agent**. The application files include:
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **text-agent.py** (the code file for the application)
+1. Depois que o repositório for clonado, no painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/02-language-agent/Python/text-agent**. Os arquivos do aplicativo incluem:
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **text-agent.py** (o arquivo de código do aplicativo)
 
-### Configure the application
+### Configurar o aplicativo
 
-1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.1x installation.
+1. No Visual Studio Code, veja o painel **Extensions**; e, se ainda não estiver instalada, instale a extensão **Python**.
+1. Na **Command Palette**, use o comando `python:select interpreter`. Em seguida, selecione um ambiente existente se você tiver um ou crie um novo ambiente **Venv** com base na sua instalação do Python 3.1x.
 
-    > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */Labfiles/02-language-agent/Python/text-agent* folder; but it's OK if you don't, we'll install them later.
+    > **Dica**: Se for solicitado que você instale dependências, você pode instalar as que estão no arquivo *requirements.txt* na pasta */Labfiles/02-language-agent/Python/text-agent*; mas não tem problema se você não fizer isso agora, nós as instalaremos depois.
 
-    > **Tip**: If you prefer to use the terminal, you can create your **Venv** environment with `python -m venv labenv`, then activate it with `\labenv\Scripts\activate`.
+    > **Dica**: Se preferir usar o terminal, você pode criar seu ambiente **Venv** com `python -m venv labenv` e depois ativá-lo com `\labenv\Scripts\activate`.
 
-1. In the **Explorer** pane, right-click the **text-agent** folder containing the application files, and select **Open in integrated terminal** (or open a terminal in the **Terminal** menu and navigate to the */Labfiles/02-language-agent/Python/text-agent* folder.)
+1. No painel **Explorer**, clique com o botão direito na pasta **text-agent** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou abra um terminal no menu **Terminal** e navegue até a pasta */Labfiles/02-language-agent/Python/text-agent*.)
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Talvez você precise habilitar a execução de scripts no seu sistema.
 
-1. Ensure that the terminal is open in the **text-agent** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the Foundry SDK package, the Azure Identity package, and other required packages by running the following command:
+1. Verifique se o terminal está aberto na pasta **text-agent** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Instale o pacote do Foundry SDK, o pacote Azure Identity e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt
     ```
 
-1. In the **Explorer** pane, in the **text-agent** folder, select the **.env** file to open it. Then update the configuration values to include your project **endpoint** (from the project home page in Foundry Portal) and the name of your agent (which should be **Text-Analysis-Agent** - note that this name is case-sensitive).
-1. Save the modified configuration file.
+1. No painel **Explorer**, na pasta **text-agent**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para incluir o seu **endpoint** do projeto (na home page do projeto no Foundry Portal) e o nome do seu agente (que deve ser **Text-Analysis-Agent** — observe que esse nome diferencia maiúsculas de minúsculas).
+1. Salve o arquivo de configuração modificado.
 
-### Implement application code
+### Implementar o código do aplicativo
 
-1. In the **Explorer** pane, in the **text-agent** folder,  open the **text-agent.py** file.
-1. Review the existing code. You will add code to submit prompts to your agent.
+1. No painel **Explorer**, na pasta **text-agent**, abra o arquivo **text-agent.py**.
+1. Veja o código existente. Você adicionará código para enviar prompts ao seu agente.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespaces you will need:
+1. No topo do arquivo de código, abaixo das referências de namespace existentes, localize o comentário **Import namespaces** e adicione o seguinte código para importar os namespaces de que você precisará:
 
     ```python
    # import namespaces
@@ -189,7 +189,7 @@ Now that you have a working agent, you can create a client application that uses
    from azure.ai.projects import AIProjectClient
     ```
 
-1. In the **main** function, note that code to load the endpoint from the configuration file has already been provided. Then find the comment **Get project client**, and add the following code to create a client for your Foundry project:
+1. Na função **main**, observe que já foi fornecido código para carregar o endpoint do arquivo de configuração. Em seguida, localize o comentário **Get project client** e adicione o seguinte código para criar um cliente para o seu projeto do Foundry:
 
     ```python
    # Get project client
@@ -199,14 +199,14 @@ Now that you have a working agent, you can create a client application that uses
    )
     ```
 
-1. Find the comment **Get an OpenAI client**, and add the following code to get an OpenAI client with which to call your agent.
+1. Localize o comentário **Get an OpenAI client** e adicione o seguinte código para obter um cliente do OpenAI com o qual chamar seu agente.
 
     ```python
    # Get an OpenAI client
    openai_client = project_client.get_openai_client()
     ```
 
-1. Find the comment **Use the agent to get a response**, and add the following code to submit a user prompt to your agent, and display the response.
+1. Localize o comentário **Use the agent to get a response** e adicione o seguinte código para enviar um prompt do usuário ao seu agente e exibir a resposta.
 
     ```python
    # Use the agent to get a response
@@ -219,59 +219,59 @@ Now that you have a working agent, you can create a client application that uses
    print(f"{agent_name}: {response.output_text}")
     ```
 
-1. Save the changes you made to the code file.
+1. Salve as alterações feitas no arquivo de código.
 
-## Test the client application
+## Testar o aplicativo cliente
 
-Now let's test the application by running it in a Python environment and authenticating the connection to your project.
+Agora vamos testar o aplicativo executando-o em um ambiente Python e autenticando a conexão com o seu projeto.
 
-1. In the Visual Studio Code terminal, enter the following command to sign into Azure
+1. No terminal do Visual Studio Code, insira o seguinte comando para entrar no Azure
 
    ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, apenas usar *az login* será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro *--tenant*. Consulte [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, visualizando (e confirmando, se necessário) os detalhes da assinatura que contém seu recurso do Foundry.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```powershell
     python text-agent.py
     ```
 
-1. When prompted, enter the following prompt:
+1. Quando solicitado, insira o seguinte prompt:
 
     ```
     Extract named entities from the following text: "Pierre and I went to Paris on July 14th."
     ```
 
-1. Review the response, which should identify named people, places, and dates.
+1. Revise a resposta, que deve identificar pessoas, locais e datas nomeadas.
 
-## View tool details
+## Ver detalhes da ferramenta
 
-The Azure Language in Foundry Tools tool provides a wide range of functionality, and the agent must select the appropriate function to call. We can see the options available in the agent's response.
+A ferramenta Azure Language in Foundry Tools oferece uma ampla variedade de funcionalidades, e o agente deve selecionar a função apropriada a ser chamada. Podemos ver as opções disponíveis na resposta do agente.
 
-1. In the **text-agent.py** code file, add the following line immediately after the *print(f"{agent_name}: {response.output_text}")* line you added previously (before the *except Exception as ex:* line):
+1. No arquivo de código **text-agent.py**, adicione a seguinte linha imediatamente após a linha *print(f"{agent_name}: {response.output_text}")* que você adicionou anteriormente (antes da linha *except Exception as ex:*):
 
     ```python
     print(f"\nResponse Details: {response.model_dump_json(indent=2)}")
     ```
 
-1. Save the changes to the code file.
-1. In the terminal, re-enter the command to run the application (`python text-agent.py`).
-1. When prompted, enter the following command:
+1. Salve as alterações no arquivo de código.
+1. No terminal, insira novamente o comando para executar o aplicativo (`python text-agent.py`).
+1. Quando solicitado, insira o seguinte comando:
 
     ```
     Tell me what entities and dates are mentioned in this review, and whether it is positive or negative: "I booked my flight to Paris in July with Margie's Travel, and it was fantastic!"
     ```
 
-1. Review the response (you may need to scroll quite far up to see it), which should identify entities and dates, and determine the sentiment of the text.
-1. Review the JSON response details, which indicate each of the tools available to the agent. In this case, it should have used the **extract_named_entities_from_text** and **detect_sentiment_from_text** tools within Azure Language in Foundry Tools.
+1. Revise a resposta (talvez seja necessário rolar bastante para cima para vê-la), que deve identificar entidades e datas e determinar o sentimento do texto.
+1. Revise os detalhes da resposta em JSON, que indicam cada uma das ferramentas disponíveis para o agente. Nesse caso, ele deve ter usado as ferramentas **extract_named_entities_from_text** e **detect_sentiment_from_text** dentro do Azure Language in Foundry Tools.
 
-## Clean up resources
+## Limpar recursos
 
-If you're finished exploring the Azure Language service, you can delete the resources you created in this exercise. Here's how:
+Se você terminou de explorar o serviço Azure Language, poderá excluir os recursos criados neste exercício. Veja como:
 
-1. In the Azure portal, browse to the Foundry resource you created in this lab.
-1. On the resource page, select **Delete** and follow the instructions to delete the resource.
+1. No portal do Azure, navegue até o Foundry resource que você criou neste laboratório.
+1. Na página do recurso, selecione **Delete** e siga as instruções para excluir o recurso.

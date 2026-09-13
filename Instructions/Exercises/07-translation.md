@@ -1,129 +1,129 @@
 ---
 lab:
-    title: 'Translate text and speech'
-    description: Implement translation with Azure Translator and Azure Speech in Foundry Tools.
+    title: 'Traduzir texto e fala'
+    description: Implementar tradução com Azure Translator e Azure Speech no Foundry Tools.
     duration: 30
     level: 300
     islab: true
     status: 'released'
 ---
 
-# Translate text and speech
+# Traduzir texto e fala
 
-**Azure Translator in Foundry Tools** is a service that enables you to translate text between languages. Similarly, **Azure Speech in Foundry Tools** provides translation services for speech. In this exercise, you'll use them to create translation apps that translates input in any supported language to the target language of your choice.
+**Azure Translator in Foundry Tools** é um serviço que permite traduzir texto entre idiomas. Da mesma forma, **Azure Speech in Foundry Tools** fornece serviços de tradução para fala. Neste exercício, você usará esses serviços para criar aplicativos de tradução que traduzem a entrada em qualquer idioma compatível para o idioma de destino de sua escolha.
 
-While this exercise is based on Python, you can develop text translation applications using multiple language-specific SDKs; including:
+Embora este exercício seja baseado em Python, você pode desenvolver aplicativos de tradução de texto usando vários SDKs específicos de linguagem, incluindo:
 
-- [Azure Translator client library for Python](https://pypi.org/project/azure-ai-translation-text/)
-- [Azure Translator client library for .NET](https://www.nuget.org/packages/Azure.AI.Translation.Text)
-- [Azure Translator client library for JavaScript](https://www.npmjs.com/package/@azure-rest/ai-translation-text)
-- [Azure AI Speech SDK for Python](https://pypi.org/project/azure-cognitiveservices-speech/)
-- [Azure AI Speech SDK for .NET](https://www.nuget.org/packages/Microsoft.CognitiveServices.Speech)
-- [Azure AI Speech SDK for JavaScript](https://www.npmjs.com/package/microsoft-cognitiveservices-speech-sdk)
+- [Biblioteca de cliente do Azure Translator para Python](https://pypi.org/project/azure-ai-translation-text/)
+- [Biblioteca de cliente do Azure Translator para .NET](https://www.nuget.org/packages/Azure.AI.Translation.Text)
+- [Biblioteca de cliente do Azure Translator para JavaScript](https://www.npmjs.com/package/@azure-rest/ai-translation-text)
+- [Azure AI Speech SDK para Python](https://pypi.org/project/azure-cognitiveservices-speech/)
+- [Azure AI Speech SDK para .NET](https://www.nuget.org/packages/Microsoft.CognitiveServices.Speech)
+- [Azure AI Speech SDK para JavaScript](https://www.npmjs.com/package/microsoft-cognitiveservices-speech-sdk)
 
-This exercise takes approximately **30** minutes.
+Este exercício leva aproximadamente **30** minutos.
 
-> **Note**: Some of the technologies used in this exercise are in preview or in active development. You may experience some unexpected behavior, warnings, or errors.
+> **Observação**: Algumas das tecnologias usadas neste exercício estão em versão prévia ou em desenvolvimento ativo. Você pode observar comportamentos inesperados, avisos ou erros.
 
-## Prerequisites
+## Pré-requisitos
 
-Before starting this exercise, ensure you have:
+Antes de começar este exercício, verifique se você tem:
 
-- An active [Azure subscription](https://azure.microsoft.com/pricing/purchase-options/azure-account)
-- [Visual Studio Code](https://code.visualstudio.com/) installed
-- [Python version **3.13.xx**](https://www.python.org/downloads/release/python-31312/) installed\*
-- [Git](https://git-scm.com/install/) installed and configured
-- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) installed
+- Uma [assinatura do Azure](https://azure.microsoft.com/pricing/purchase-options/azure-account) ativa
+- [Visual Studio Code](https://code.visualstudio.com/) instalado
+- [Python versão **3.13.xx**](https://www.python.org/downloads/release/python-31312/) instalado\*
+- [Git](https://git-scm.com/install/) instalado e configurado
+- [Azure CLI](https://learn.microsoft.com/cli/azure/install-azure-cli?view=azure-cli-latest) instalado
 
-> \* Python 3.14 is available, but some dependencies are not yet compiled for that release. The lab has been successfully tested with Python 3.13.12.
+> \* O Python 3.14 está disponível, mas algumas dependências ainda não foram compiladas para essa versão. O laboratório foi testado com sucesso com o Python 3.13.12.
 
-## Create a Microsoft Foundry project
+## Criar um projeto do Microsoft Foundry
 
-Microsoft Foundry uses projects to organize models, resources, data, and other assets used to develop an AI solution.
+O Microsoft Foundry usa projetos para organizar modelos, recursos, dados e outros ativos usados para desenvolver uma solução de IA.
 
-1. In a web browser, open the [Microsoft Foundry portal](https://ai.azure.com) at `https://ai.azure.com` and sign in using your Azure credentials. Close any tips or quick start panes that are opened the first time you sign in, and if necessary use the Foundry logo at the top left to navigate to the home page.
+1. Em um navegador da Web, abra o [portal do Microsoft Foundry](https://ai.azure.com) em `https://ai.azure.com` e entre usando suas credenciais do Azure. Feche quaisquer dicas ou painéis de início rápido que sejam abertos na primeira vez que você entrar e, se necessário, use o logotipo do Foundry no canto superior esquerdo para navegar até a página inicial.
 
-1. If it is not already enabled, in the tool bar the top of the page, enable the **New Foundry** option. Then, if prompted, create a new project with a unique name; expanding the **Advanced options** area to specify the following settings for your project:
-    - **Foundry resource**: *Use the default name for your resource (usually {project_name}-resource)*\*
-    - **Subscription**: *Your Azure subscription*
-    - **Resource group**: *Create or select a resource group*
-    - **Region**: Select any available region
+1. Se ainda não estiver habilitada, na barra de ferramentas na parte superior da página, habilite a opção **New Foundry**. Em seguida, se solicitado, crie um novo projeto com um nome exclusivo; expandindo a área **Advanced options** para especificar as seguintes configurações para seu projeto:
+    - **Foundry resource**: *Use o nome padrão para seu recurso (geralmente {project_name}-resource)*\*
+    - **Subscription**: *Sua assinatura do Azure*
+    - **Resource group**: *Crie ou selecione um grupo de recursos*
+    - **Region**: Selecione qualquer região disponível
 
-    > **Note**: Use a recommended Microsoft Foundry region. Model availability may vary by region.
+    > **Observação**: Use uma região recomendada do Microsoft Foundry. A disponibilidade de modelos pode variar por região.
 
-    > **TIP**: \* Remember the Foundry resource name - you'll need it later!
+    > **Dica**: \* Lembre-se do nome do Foundry resource — você precisará dele mais tarde!
 
-1. Wait for your project to be created. Then view the home page for your project.
+1. Aguarde a criação do projeto. Em seguida, exiba a página inicial do seu projeto.
 
-## Explore Azure Translator in Foundry Tools in the portal
+## Explorar o Azure Translator no Foundry Tools no portal
 
-You can use the Azure Translator playground in the Foundry portal to experiment with the service.
+Você pode usar o playground do Azure Translator no portal Foundry para experimentar o serviço.
 
-1. Now you're ready to **Start building**. Select **Explore playgrounds** (or on the **Build** page, select the **Models** tab) to view the models in your project.
-1. In the **Models** page, select the **AI services** tab to view the list of Azure services in Foundry Tools.
-1. In the list of tools, select **Azure Translator - Text translation**.
-1. In the Text translator playground, in the **Source text** area, enter the text `Hello world!`. Then, in the **Translation** area, select any language and use the **Translate** button to generate the translation.
-1. Try a few more languages.
-1. Select the **Code** tab to view sample code for using Azure Translator; and note the **ENDPOINT** variable used in the code for the REST API, which should be similar to `https://{foundry-resource-name}.cognitiveservices.azure.com/`.
+1. Agora você está pronto para **Start building**. Selecione **Explore playgrounds** (ou, na página **Build**, selecione a guia **Models**) para ver os modelos no seu projeto.
+1. Na página **Models**, selecione a guia **AI services** para ver a lista de serviços do Azure no Foundry Tools.
+1. Na lista de ferramentas, selecione **Azure Translator - Text translation**.
+1. No playground do Text translator, na área **Source text**, insira o texto `Hello world!`. Em seguida, na área **Translation**, selecione qualquer idioma e use o botão **Translate** para gerar a tradução.
+1. Experimente mais alguns idiomas.
+1. Selecione a guia **Code** para ver um código de exemplo para usar o Azure Translator; e observe a variável **ENDPOINT** usada no código para a REST API, que deve ser semelhante a `https://{foundry-resource-name}.cognitiveservices.azure.com/`.
 
-    This endpoint uses an older format for Azure AI Services, but is still used to connect to the Azure Translator resource in a Foundry resource. You can also use it to connect to Azure Speech tools.
+    Esse endpoint usa um formato mais antigo para Azure AI Services, mas ainda é usado para se conectar ao recurso do Azure Translator em um Foundry resource. Você também pode usá-lo para se conectar às ferramentas do Azure Speech.
 
-    > **TIP**: You're going to need the endpoint later!
+    > **Dica**: Você vai precisar do endpoint mais tarde!
 
-## Get application files from GitHub
+## Obter arquivos do aplicativo no GitHub
 
-The initial application files you'll need to develop the translation application are provided in a GitHub repo.
+Os arquivos iniciais do aplicativo necessários para desenvolver o aplicativo de tradução são fornecidos em um repositório do GitHub.
 
-1. Open Visual Studio Code.
-1. Open the command palette (*Ctrl+Shift+P*) and use the `Git:clone` command to clone the `https://github.com/microsoftlearning/mslearn-ai-language` repo to a local folder (it doesn't matter which one). Then open it.
+1. Abra o Visual Studio Code.
+1. Abra a paleta de comandos (Ctrl+Shift+P) e use o comando `Git:clone` para clonar o repositório `https://github.com/microsoftlearning/mslearn-ai-language` para uma pasta local (não importa qual). Em seguida, abra-o.
 
-    You may be prompted to confirm you trust the authors.
+    Você pode ser solicitado a confirmar que confia nos autores.
 
-1. In Visual Studio Code, view the **Extensions** pane; and if it is not already installed, install the **Python** extension.
-1. In the **Command Palette**, use the command `python:select interpreter`. Then select an existing environment if you have one, or create a new **Venv** environment based on your Python 3.1x installation.
+1. No Visual Studio Code, exiba o painel **Extensions**; e, se ainda não estiver instalada, instale a extensão **Python**.
+1. Na **Command Palette**, use o comando `python:select interpreter`. Em seguida, selecione um ambiente existente, se tiver um, ou crie um novo ambiente **Venv** com base na sua instalação do Python 3.1x.
 
-    > **Tip**: If you are prompted to install dependencies, you can install the ones in the *requirements.txt* file in the */Labfiles/07-translation/Python/translators* folder; but it's OK if you don't - we'll install them later!
+    > **Dica**: Se você for solicitado a instalar dependências, pode instalar as do arquivo *requirements.txt* na pasta */Labfiles/07-translation/Python/translators*; mas tudo bem se não fizer isso agora — vamos instalá-las depois!
 
-    > **Tip**: If you prefer to use the terminal, you can create your **Venv** environment with `python -m venv labenv`, then activate it with `\labenv\Scripts\activate`.
+    > **Dica**: Se preferir usar o terminal, você pode criar seu ambiente **Venv** com `python -m venv labenv` e depois ativá-lo com `\labenv\Scripts\activate`.
 
-## Create a text translation application
+## Criar um aplicativo de tradução de texto
 
-Now you're ready to use Azure Translator to implement text translation.
+Agora você está pronto para usar o Azure Translator para implementar a tradução de texto.
 
-1. After the repo has been cloned, in the Explorer pane, navigate to the folder containing the application code files at **/Labfiles/07-translation/Python/translators**. The application files include:
-    - **.env** (the application configuration file)
-    - **requirements.txt** (the Python package dependencies that need to be installed)
-    - **translate-text.py** (the code file for text-application)
-    - **translate-speech.py** (the code file for speech-application)
+1. Após a clonagem do repositório, no painel Explorer, navegue até a pasta que contém os arquivos de código do aplicativo em **/Labfiles/07-translation/Python/translators**. Os arquivos do aplicativo incluem:
+    - **.env** (o arquivo de configuração do aplicativo)
+    - **requirements.txt** (as dependências de pacotes Python que precisam ser instaladas)
+    - **translate-text.py** (o arquivo de código para o aplicativo de texto)
+    - **translate-speech.py** (o arquivo de código para o aplicativo de fala)
 
-### Configure your text translation application
+### Configurar seu aplicativo de tradução de texto
 
-1. In the **Explorer** pane, in the **translators** folder, select the **.env** file to open it. Then update the configuration values to reflect the Cognitive Services **endpoint** for your Foundry resource.
+1. No painel **Explorer**, na pasta **translators**, selecione o arquivo **.env** para abri-lo. Em seguida, atualize os valores de configuração para refletir o **endpoint** do Cognitive Services para o seu Foundry resource.
 
-    > **Important**: The endpoint should be *https://{YOUR_FOUNDRY_RESOURCE}.cognitiveservices.azure.com/*. The Foundry Resource name usually takes the form *{project_name}-resource*.
+    > **Importante**: O endpoint deve ser *https://{YOUR_FOUNDRY_RESOURCE}.cognitiveservices.azure.com/*. O nome do Foundry Resource geralmente tem o formato *{project_name}-resource*.
 
-    Save the modified configuration file.
+    Salve o arquivo de configuração modificado.
 
-1. In the **Explorer** pane, right-click the **translators** folder containing the application files, and select **Open in integrated terminal** (or open a terminal in the **Terminal** menu and navigate to the */Labfiles/07-translation/Python/translators* folder.)
+1. No painel **Explorer**, clique com o botão direito na pasta **translators** que contém os arquivos do aplicativo e selecione **Open in integrated terminal** (ou abra um terminal no menu **Terminal** e navegue até a pasta */Labfiles/07-translation/Python/translators*.)
 
-    > **Note**: Opening the terminal in Visual Studio Code will automatically activate the Python environment. You may need to enable running scripts on your system.
+    > **Observação**: Abrir o terminal no Visual Studio Code ativará automaticamente o ambiente Python. Talvez seja necessário habilitar a execução de scripts no seu sistema.
 
-1. Ensure that the terminal is open in the **translators** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. Install the Azure Translator SDK, Speech SDK, and other required packages by running the following command:
+1. Verifique se o terminal está aberto na pasta **translators** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Instale o Azure Translator SDK, o Speech SDK e outros pacotes necessários executando o seguinte comando:
 
     ```
     pip install -r requirements.txt
     ```
 
-### Add code to translate text
+### Adicionar código para traduzir texto
 
-1. In the **Explorer** pane, in the **translators** folder,  open the **translate-text.py** file.
+1. No painel **Explorer**, na pasta **translators**, abra o arquivo **translate-text.py**.
 
-1. Review the existing code. You will add code to work with Azure Translator.
+1. Revise o código existente. Você adicionará código para trabalhar com o Azure Translator.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespaces you will need to use the Translator SDK:
+1. No início do arquivo de código, abaixo das referências de namespace existentes, localize o comentário **Import namespaces** e adicione o seguinte código para importar os namespaces que você precisará para usar o Translator SDK:
 
     ```python
    # import namespaces
@@ -132,8 +132,8 @@ Now you're ready to use Azure Translator to implement text translation.
    from azure.ai.translation.text.models import InputTextItem
     ```
 
-1. In the **main** function, note that the existing code reads the configuration settings.
-1. Find the comment **Create client using endpoint and credential** and add the following code:
+1. Na função **main**, observe que o código existente lê as configurações de configuração.
+1. Localize o comentário **Create client using endpoint and credential** e adicione o seguinte código:
 
     ```python
    # Create client using endpoint and credential
@@ -141,7 +141,7 @@ Now you're ready to use Azure Translator to implement text translation.
    client = TextTranslationClient(credential=credential, endpoint=foundry_endpoint)
     ```
 
-1. Find the comment **Choose target language** and add the following code, which uses the Text Translator service to return list of supported languages for translation, and prompts the user to select a language code for the target language:
+1. Localize o comentário **Choose target language** e adicione o seguinte código, que usa o serviço Text Translator para retornar a lista de idiomas com suporte para tradução e solicita ao usuário que selecione um código de idioma para o idioma de destino:
 
     ```python
    # Choose target language
@@ -159,7 +159,7 @@ Now you're ready to use Azure Translator to implement text translation.
             print("{} is not a supported language.".format(targetLanguage))
     ```
 
-1. Find the comment **Translate text** and add the following code, which repeatedly prompts the user for text to be translated, uses the Azure AI Translator service to translate it to the target language (detecting the source language automatically), and displays the results until the user enters *quit*:
+1. Localize o comentário **Translate text** e adicione o seguinte código, que solicita repetidamente ao usuário um texto a ser traduzido, usa o serviço Azure AI Translator para traduzi-lo para o idioma de destino (detectando automaticamente o idioma de origem) e exibe os resultados até que o usuário digite *quit*:
 
     ```python
    # Translate text
@@ -176,48 +176,48 @@ Now you're ready to use Azure Translator to implement text translation.
                     print(f"'{inputText}' was translated from {sourceLanguage.language} to {translated_text.to} as '{translated_text.text}'.")
     ```
 
-1. Save the changes to the code file. Then, in the terminal pane, use the following command to sign into Azure.
+1. Salve as alterações no arquivo de código. Em seguida, no painel do terminal, use o seguinte comando para entrar no Azure.
 
     ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, apenas usar *az login* será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro *--tenant*. Consulte [Entrar no Azure de forma interativa usando a CLI do Azure](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, visualizando (e confirmando, se necessário) os detalhes da assinatura que contém seu Foundry resource.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```
    python translate-text.py
     ```
 
-1. When prompted, enter a valid target language from the list in the link displayed.
-1. Enter a phrase to be translated (for example `This is a test` or `C'est un test`) and view the results, which should detect the source language and translate the text to the target language.
-1. When you're done, enter `quit`. You can run the application again and choose a different target language.
+1. Quando solicitado, insira um idioma de destino válido da lista no link exibido.
+1. Insira uma frase para ser traduzida (por exemplo, `This is a test` ou `C'est un test`) e veja os resultados, que devem detectar o idioma de origem e traduzir o texto para o idioma de destino.
+1. Quando terminar, digite `quit`. Você pode executar o aplicativo novamente e escolher um idioma de destino diferente.
 
-## Create a speech translation application
+## Criar um aplicativo de tradução de fala
 
-Now you're ready to use Azure Speech to implement text translation.
+Agora você está pronto para usar o Azure Speech para implementar tradução de texto.
 
-### Configure your speech translation application
+### Configurar seu aplicativo de tradução de fala
 
-1. In the **translators** folder, verify that the .env file contains the  **endpoint** for your Foundry resource (Azure Speech can use the same information as Azure Translator to connect to your Foundry resource).
-1. Ensure that the terminal is open in the **translators** folder with the prefix **(.venv)** to indicate that the Python environment you created is active.
-1. If you did not previously install the required packages, enter the following command to do so now:
+1. Na pasta **translators**, verifique se o arquivo .env contém o **endpoint** do seu Foundry resource (o Azure Speech pode usar as mesmas informações que o Azure Translator para se conectar ao seu Foundry resource).
+1. Verifique se o terminal está aberto na pasta **translators** com o prefixo **(.venv)** para indicar que o ambiente Python que você criou está ativo.
+1. Se você não instalou anteriormente os pacotes necessários, insira o seguinte comando para fazê-lo agora:
 
     ```
     pip install -r requirements.txt
     ```
 
-### Add code to translate speech
+### Adicionar código para traduzir fala
 
-1. In the **Explorer** pane, in the **translators** folder,  open the **translate-speech.py** file.
+1. No painel **Explorer**, na pasta **translators**, abra o arquivo **translate-speech.py**.
 
-1. Review the existing code. You will add code to work with Azure Speech.
+1. Revise o código existente. Você adicionará código para trabalhar com o Azure Speech.
 
-    > **Tip**: As you add code to the code file, be sure to maintain the correct indentation.
+    > **Dica**: Ao adicionar código ao arquivo, certifique-se de manter a indentação correta.
 
-1. At the top of the code file, under the existing namespace references, find the comment **Import namespaces** and add the following code to import the namespace you will need to use the Speech SDK:
+1. No início do arquivo de código, abaixo das referências de namespace existentes, localize o comentário **Import namespaces** e adicione o seguinte código para importar o namespace necessário para usar o Speech SDK:
 
    ```python
    # Import namespaces
@@ -225,9 +225,9 @@ Now you're ready to use Azure Speech to implement text translation.
    import azure.cognitiveservices.speech as speech_sdk
     ```
 
-1. In the **main** function, under the comment **Get configuration settings**, note that the code loads the endpoint you defined in the configuration file.
+1. Na função **main**, sob o comentário **Get configuration settings**, observe que o código carrega o endpoint que você definiu no arquivo de configuração.
 
-1. Find the following code under the comment **Configure translation**, and add the following code to configure your connection to the Foundry endpoint for Azure Speech, and prepare to translate speech in US English to French, Spanish, and Hindi:
+1. Localize o seguinte código sob o comentário **Configure translation** e adicione o seguinte código para configurar sua conexão ao endpoint do Foundry para o Azure Speech e preparar a tradução de fala em inglês dos EUA para francês, espanhol e híndi:
 
     ```python
    # Configure translation
@@ -248,7 +248,7 @@ Now you're ready to use Azure Speech to implement text translation.
    print('Ready to translate from',translation_cfg.speech_recognition_language)
     ```
 
-1. You will use the **SpeechTranslationConfig** to translate speech into text, but you will also use a **SpeechConfig** to synthesize translations into speech. Add the following code under the comment **Configure speech for synthesis of translations**:
+1. Você usará o **SpeechTranslationConfig** para traduzir fala em texto, mas também usará um **SpeechConfig** para sintetizar traduções em fala. Adicione o seguinte código sob o comentário **Configure speech for synthesis of translations**:
 
     ```python
    # Configure speech for synthesis of translations
@@ -262,7 +262,7 @@ Now you're ready to use Azure Speech to implement text translation.
    print('Ready to use speech service.')
     ```
 
-1. Now it's time to add the code to translate the user's speech int the system microphone. Find the comment **Translate user speech**, and add the following code:
+1. Agora é hora de adicionar o código para traduzir a fala do usuário capturada pelo microfone do sistema. Localize o comentário **Translate user speech** e adicione o seguinte código:
 
     ```python
    # Translate user speech
@@ -271,7 +271,7 @@ Now you're ready to use Azure Speech to implement text translation.
    print(f"Translating '{translation_results.text}'")
     ```
 
-1. When the results are returned, the application will iterate through the translations, printing the text and playing the synthesized speech through the default system speaker. Find the comment **Print and speak the translation results** and add he following code:
+1. Quando os resultados forem retornados, o aplicativo iterará pelas traduções, imprimindo o texto e reproduzindo a fala sintetizada pelo alto-falante padrão do sistema. Localize o comentário **Print and speak the translation results** e adicione o seguinte código:
 
     ```python
    # Print and speak the translation results
@@ -289,30 +289,30 @@ Now you're ready to use Azure Speech to implement text translation.
             print(speak.reason)
     ```
 
-1. Save the changes to the code file. Then, in the terminal pane, if you are not already signed into Azure (or your session may have expired) use the following command to sign into Azure.
+1. Salve as alterações no arquivo de código. Em seguida, no painel do terminal, se você ainda não estiver conectado ao Azure (ou sua sessão pode ter expirado), use o seguinte comando para entrar no Azure.
 
     ```powershell
     az login
     ```
 
-    > **Note**: In most scenarios, just using *az login* will be sufficient. However, if you have subscriptions in multiple tenants, you may need to specify the tenant by using the *--tenant* parameter. See [Sign into Azure interactively using the Azure CLI](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) for details.
+    > **Observação**: Na maioria dos cenários, apenas usar *az login* será suficiente. No entanto, se você tiver assinaturas em vários locatários, talvez seja necessário especificar o locatário usando o parâmetro *--tenant*. Consulte [Entrar no Azure de forma interativa usando a CLI do Azure](https://learn.microsoft.com/cli/azure/authenticate-azure-cli-interactively) para obter detalhes.
 
-1. When prompted, follow the instructions to sign into Azure. Then complete the sign in process in the command line, viewing (and confirming if necessary) the details of the subscription containing your Foundry resource.
-1. After you have signed in, enter the following command to run the application:
+1. Quando solicitado, siga as instruções para entrar no Azure. Em seguida, conclua o processo de entrada na linha de comando, visualizando (e confirmando, se necessário) os detalhes da assinatura que contém seu Foundry resource.
+1. Depois de entrar, insira o seguinte comando para executar o aplicativo:
 
     ```
    python translate-speech.py
     ```
 
-1. When prompted, say something aloud (for example, "*Hello!"*).
+1. Quando solicitado, diga algo em voz alta (por exemplo, "*Hello!*").
 
-     The program should translate it to the languages specified in the code (French, Spanish, and Hindi), and print and speak the translations.
+     O programa deve traduzi-lo para os idiomas especificados no código (francês, espanhol e híndi) e imprimir e falar as traduções.
 
-    > **NOTE**: The translation to Hindi may not always be displayed correctly in the terminal due to character encoding issues.
+    > **Observação**: A tradução para híndi pode nem sempre ser exibida corretamente no terminal devido a problemas de codificação de caracteres.
 
-## Clean up resources
+## Limpar recursos
 
-If you have finished exploring Microsoft Foundry, delete any resources that you no longer need. This avoids accruing any unnecessary costs.
+Se você terminou de explorar o Microsoft Foundry, exclua quaisquer recursos que não sejam mais necessários. Isso evita a acumulação de custos desnecessários.
 
-1. Open the **Azure portal** at [https://portal.azure.com](https://portal.azure.com) and select the resource group that contains the resources you created.
-1. Select **Delete resource group** and then **enter the resource group name** to confirm. The resource group is then deleted.
+1. Abra o **Azure portal** em [https://portal.azure.com](https://portal.azure.com) e selecione o grupo de recursos que contém os recursos que você criou.
+1. Selecione **Delete resource group** e, em seguida, **enter the resource group name** para confirmar. O grupo de recursos será excluído.
