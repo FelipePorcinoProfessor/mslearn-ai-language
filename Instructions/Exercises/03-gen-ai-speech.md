@@ -6,6 +6,7 @@ lab:
     level: 300
     islab: true
     status: 'released'
+layout: default
 ---
 
 # Use modelos de IA generativa com suporte a fala

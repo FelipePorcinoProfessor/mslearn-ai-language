@@ -6,6 +6,7 @@ lab:
     duration: 30
     islab: true
     status: 'released'
+layout: default
 ---
 
 # Desenvolver um agente Voice Live

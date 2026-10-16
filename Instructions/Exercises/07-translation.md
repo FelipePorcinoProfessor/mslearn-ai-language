@@ -6,6 +6,7 @@ lab:
     level: 300
     islab: true
     status: 'released'
+layout: default
 ---
 
 # Traduzir texto e fala
